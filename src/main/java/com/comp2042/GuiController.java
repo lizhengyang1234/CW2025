@@ -1,3 +1,4 @@
+//  manages windows, panels, and connects user input with game logic.
 package com.comp2042;
 
 import javafx.animation.KeyFrame;

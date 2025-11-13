@@ -1,3 +1,4 @@
+//Main entry point
 package com.comp2042;
 
 import javafx.application.Application;

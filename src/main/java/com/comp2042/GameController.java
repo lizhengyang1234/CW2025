@@ -1,3 +1,4 @@
+// handles the main loop, block updates, start/end state.
 package com.comp2042;
 
 public class GameController implements InputEventListener {
