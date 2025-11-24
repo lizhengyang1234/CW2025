@@ -1,4 +1,12 @@
-//  manages windows, panels, and connects user input with game logic.
+// 图形界面的控制器，主要负责把游戏逻辑的结果显示出来。
+// 包括绘制棋盘、当前方块、处理键盘输入、显示分数、以及控制游戏的开始/暂停/结束。
+// 本类和 GameController 配合，一个负责显示，一个负责游戏逻辑。
+//
+// GUI controller for the game. Handles drawing the board, updating the current
+// falling brick, processing keyboard input, showing score, and managing game
+// states such as start/pause/game-over. Works together with GameController to
+// separate logic from presentation.
+
 package com.comp2042;
 
 import javafx.animation.KeyFrame;

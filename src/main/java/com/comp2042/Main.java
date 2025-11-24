@@ -1,4 +1,11 @@
-//Main entry point
+// 程序的入口类。主要负责加载 FXML 布局，创建 GUI 控制器，
+// 然后启动主窗口并把控制权交给 GameController。
+// 基本上就是把界面搭好，然后让游戏逻辑接管运行。
+//
+// Main entry point of the application. Loads the FXML layout,
+// creates the GUI controller, sets up the window, and hands
+// control over to the GameController to run the game.
+
 package com.comp2042;
 
 import javafx.application.Application;

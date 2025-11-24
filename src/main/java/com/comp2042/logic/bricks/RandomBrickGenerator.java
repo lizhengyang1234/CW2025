@@ -6,6 +6,16 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/*
+ * 随机生成方块的类。游戏每次需要新方块时都会从这里取。
+ * 内部用一个队列保存“当前方块”和“下一个方块”，
+ * 这样界面可以提前显示下一块（next piece）。
+ * 具体生成就是从所有砖块类型里随机挑一个。
+ *
+ * Random brick generator. The game asks this class for the current
+ * and next brick. A small queue is used so the UI can preview the next piece.
+ * Bricks are chosen randomly from all available types.
+ */
 public class RandomBrickGenerator implements BrickGenerator {
 
     private final List<Brick> brickList;

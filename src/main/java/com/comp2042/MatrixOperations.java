@@ -1,3 +1,11 @@
+// 矩阵工具类：封装了对棋盘和方块矩阵的一些常用操作。
+// 包括碰撞检测、复制矩阵、把方块合并到背景，以及检查并清除已满的行等。
+// 这些方法通常由 Board 或 GameController 调用，本类本身不包含游戏规则，只提供底层计算。
+//
+// Matrix utility class: contains common operations on board and brick matrices,
+// such as collision checks, copying, merging a brick into the board background,
+// and detecting/removing full rows. Used by the board/game logic as a helper.
+
 package com.comp2042;
 
 import java.util.ArrayDeque;

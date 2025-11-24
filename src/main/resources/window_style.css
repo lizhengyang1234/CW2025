@@ -1,19 +1,27 @@
+/* 整体背景：使用一张图片作为游戏窗口背景 */
+/* Root background: applies a background image to the whole window */
 .root {
     -fx-background-image: url("background_image.png");
 }
 
+/* 下一个方块区域的外框样式 */
+/* Border style for the preview box showing the next brick */
 .nextBrick {
     -fx-border-width: 2px;
     -fx-border-color: whitesmoke;
     -fx-border-radius: 17px;
 }
 
+/* 游戏主棋盘的外框样式（蓝色渐变边框） */
+/* Main game board border with a blue gradient frame */
 .gameBoard {
     -fx-border-color: linear-gradient(#2A5058, #61a2b1);
     -fx-border-width: 12px;
     -fx-border-radius: 12px;
 }
 
+/* “Next” 标签的字体样式 */
+/* Style for the "Next" text label above next-brick preview */
 .nextBrickLabel {
     -fx-font-family: "Let's go Digital";
     -fx-padding: 20px 0 0 0;
@@ -21,6 +29,8 @@
     -fx-text-fill: yellow;
 }
 
+/* 深灰金属按钮风格（类似 iPad 风格按钮） */
+/* Dark metallic button style inspired by classic device UI */
 .ipad-dark-grey {
     -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
     linear-gradient(#020b02, #3a3a3a),
@@ -30,7 +40,6 @@
     -fx-background-insets: 0, 1, 4, 5, 6;
     -fx-background-radius: 9, 8, 5, 4, 3;
     -fx-padding: 8;
-    /*-fx-font-family: "Helvetica";*/
     -fx-font-family: "Let's go Digital";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
@@ -38,14 +47,20 @@
     -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.2), 1, 0.0, 0, 1);
 }
 
+/* 用于某些矩形砖块的渐变内容填充 */
+/* Gradient fill applied to some rectangle shapes */
 .rectangleStyle {
     -fx-fill: linear-gradient(from 41px 34px to 50px 50px, reflect, #ff7f50 30%, #faebd7 47%);
 }
 
+/* VBox 默认间距 */
+/* Default spacing for vbox groups */
 .vbox {
     -fx-spacing: 12;
 }
 
+/* 帮助信息文字的样式（about 区域的细文字） */
+/* Help text styling — small white instructions in UI */
 .helpInfo {
     -fx-fill: white;
     -fx-alignment: center-left;
@@ -53,18 +68,24 @@
     -fx-font-size: 10px;
 }
 
+/* 加分提示（NotificationPanel）的样式 */
+/* Bonus score popup text style */
 .bonusStyle {
     -fx-font-size: 40px;
     -fx-font-weight: bold;
 }
 
+/* GAME OVER 文本样式 */
+/* Styling for the "GAME OVER" label */
 .gameOverStyle {
     -fx-font-family: "Let's go Digital";
     -fx-font-size: 48;
     -fx-background-color: red;
 }
 
-.scoreClass{
+/* 分数字体样式 */
+/* Font styling for the score display */
+.scoreClass {
     -fx-font-family: "Let's go Digital";
     -fx-font-size: 38;
     -fx-fill: yellow;

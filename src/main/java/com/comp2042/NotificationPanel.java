@@ -1,3 +1,11 @@
+// 通知面板：用于显示临时提示，例如清行后出现的加分动画。
+// 这个面板会在屏幕上淡出、上移，动画结束后自动从界面删除。
+// 主要用于让玩家看到反馈（例如“+50”），并不参与游戏逻辑。
+//
+// Notification panel for showing short messages like score bonuses.
+// It fades out and moves upward, then removes itself from the UI when done.
+// Used purely for visual feedback and does not affect the game logic.
+
 package com.comp2042;
 
 import javafx.animation.FadeTransition;
