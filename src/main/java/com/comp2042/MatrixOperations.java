@@ -16,19 +16,38 @@ import java.util.stream.Collectors;
 
 public class MatrixOperations {
 
-
-    //We don't want to instantiate this utility class
-    private MatrixOperations(){
+    // 工具类不需要被实例化
+    // We don't want to instantiate this utility class
+    private MatrixOperations() {
 
     }
 
-    public static boolean intersect(final int[][] matrix, final int[][] brick, int x, int y) {
-        for (int i = 0; i < brick.length; i++) {
-            for (int j = 0; j < brick[i].length; j++) {
-                int targetX = x + i;
-                int targetY = y + j;
-                if (brick[j][i] != 0 && (checkOutOfBound(matrix, targetX, targetY) || matrix[targetY][targetX] != 0)) {
-                    return true;
+    /**
+     * 检查给定的砖块在指定偏移位置 (offsetX, offsetY) 下，
+     * 是否会和棋盘发生碰撞或越界。
+     *
+     * Checks if the given brick placed at (offsetX, offsetY)
+     * would collide with the board or go out of bounds.
+     */
+    public static boolean intersect(final int[][] board, final int[][] brick, int offsetX, int offsetY) {
+        for (int brickRow = 0; brickRow < brick.length; brickRow++) {
+            for (int brickCol = 0; brickCol < brick[brickRow].length; brickCol++) {
+
+                int targetX = offsetX + brickRow;
+                int targetY = offsetY + brickCol;
+
+                // 注意：保持和原先逻辑一致，这里仍然使用“转置”的索引 brick[brickCol][brickRow]
+                int brickCell = brick[brickCol][brickRow];
+
+                if (brickCell != 0) {
+                    // 越界就算碰撞
+                    if (checkOutOfBound(board, targetX, targetY)) {
+                        return true;
+                    }
+                    // 目标格子已被占用也算碰撞
+                    if (board[targetY][targetX] != 0) {
+                        return true;
+                    }
                 }
             }
         }
@@ -100,7 +119,7 @@ public class MatrixOperations {
         return new ClearRow(clearedRows.size(), tmp, scoreBonus);
     }
 
-    public static List<int[][]> deepCopyList(List<int[][]> list){
+    public static List<int[][]> deepCopyList(List<int[][]> list) {
         return list.stream().map(MatrixOperations::copy).collect(Collectors.toList());
     }
 
