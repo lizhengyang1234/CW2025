@@ -18,6 +18,9 @@ import java.awt.*;
 
 public class SimpleBoard implements Board {
 
+    private static final int START_X = 4;   // 方块初始 X 坐标
+    private static final int START_Y = 10;  // 方块初始 Y 坐标
+
     private final int width;
     private final int height;
     private final BrickGenerator brickGenerator;
@@ -95,7 +98,7 @@ public class SimpleBoard implements Board {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
         // 起始位置
-        currentOffset = new Point(4, 10);
+        currentOffset = new Point(START_X, START_Y);
         return MatrixOperations.intersect(
                 currentGameMatrix,
                 brickRotator.getCurrentShape(),
