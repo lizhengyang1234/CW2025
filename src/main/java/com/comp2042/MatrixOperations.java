@@ -73,18 +73,30 @@ public class MatrixOperations {
         return myInt;
     }
 
-    public static int[][] merge(int[][] filledFields, int[][] brick, int x, int y) {
-        int[][] copy = copy(filledFields);
-        for (int i = 0; i < brick.length; i++) {
-            for (int j = 0; j < brick[i].length; j++) {
-                int targetX = x + i;
-                int targetY = y + j;
-                if (brick[j][i] != 0) {
-                    copy[targetY][targetX] = brick[j][i];
+    /**
+     * 将当前下落中的砖块合并到已经填充好的棋盘中，返回新的棋盘矩阵。
+     * 不会修改原来的 filledFields，而是基于它创建一个副本。
+     *
+     * Merges the active brick into the board and returns a new matrix.
+     * The original board is not modified.
+     */
+    public static int[][] merge(int[][] filledFields, int[][] brick, int offsetX, int offsetY) {
+        int[][] result = copy(filledFields);
+        for (int brickRow = 0; brickRow < brick.length; brickRow++) {
+            for (int brickCol = 0; brickCol < brick[brickRow].length; brickCol++) {
+
+                int targetX = offsetX + brickRow;
+                int targetY = offsetY + brickCol;
+
+                // 和 intersect 一样，保持“转置”访问，保证行为不变
+                int brickCell = brick[brickCol][brickRow];
+
+                if (brickCell != 0) {
+                    result[targetY][targetX] = brickCell;
                 }
             }
         }
-        return copy;
+        return result;
     }
 
     public static ClearRow checkRemoving(final int[][] matrix) {
