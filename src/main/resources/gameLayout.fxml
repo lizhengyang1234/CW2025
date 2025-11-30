@@ -6,17 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import java.net.URL?>
-<!--
-  游戏主界面的布局文件。
-  这里定义了显示方块的区域、背景棋盘、通知区域（加分动画）、
-  以及 Game Over 面板的位置。
-  控制逻辑由 GuiController 处理，这里只负责布局。
 
-  Main game UI layout.
-  Defines the areas for the current brick, the game board,
-  notification animations, and the Game Over panel.
-  Actual behavior is handled in GuiController — this file is for layout only.
--->
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
     <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>

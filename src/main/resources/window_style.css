@@ -2,6 +2,9 @@
 /* Root background: applies a background image to the whole window */
 .root {
     -fx-background-image: url("background_image.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;    /* 或者 stretch */
+    -fx-background-position: center center;
 }
 
 /* 下一个方块区域的外框样式 */

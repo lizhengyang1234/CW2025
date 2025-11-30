@@ -34,11 +34,14 @@ import java.util.ResourceBundle;
 
 public class GuiController implements Initializable {
 
-    private static final int BRICK_SIZE = 20;
-    private static final int BOARD_HIDDEN_ROWS = 2;        // 顶部隐藏行数（不直接显示）
-    private static final int BRICK_PANEL_OFFSET_Y = -42;   // 当前方块面板的 Y 偏移量
-    private static final int FALL_INTERVAL_MS = 400;       // 自动下落间隔（毫秒）
-    private static final int BRICK_CORNER_ARC = 9;         // 方块圆角半径
+    // 方块尺寸：改大让画面更清晰
+    private static final int BRICK_SIZE = 32;
+    // 顶部隐藏的行数（逻辑上存在，但不显示）
+    private static final int BOARD_HIDDEN_ROWS = 2;
+    // 自动下落间隔（毫秒）
+    private static final int FALL_INTERVAL_MS = 400;
+    // 方块圆角
+    private static final int BRICK_CORNER_ARC = 9;
 
     // 砖块颜色映射表，下标对应砖块 id（0~7）
     private static final Paint[] BRICK_COLORS = {
@@ -65,15 +68,12 @@ public class GuiController implements Initializable {
     private GameOverPanel gameOverPanel;
 
     private Rectangle[][] displayMatrix;
-
-    private InputEventListener eventListener;
-
     private Rectangle[][] rectangles;
 
+    private InputEventListener eventListener;
     private Timeline timeLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
-
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
     @Override
@@ -81,6 +81,7 @@ public class GuiController implements Initializable {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -107,6 +108,7 @@ public class GuiController implements Initializable {
                 }
             }
         });
+
         gameOverPanel.setVisible(false);
 
         final Reflection reflection = new Reflection();
@@ -116,6 +118,7 @@ public class GuiController implements Initializable {
     }
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {
+        // ======= 背景棋盘（固定格子） =======
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = BOARD_HIDDEN_ROWS; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
@@ -126,23 +129,23 @@ public class GuiController implements Initializable {
             }
         }
 
-        rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-        for (int i = 0; i < brick.getBrickData().length; i++) {
-            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+        // ======= 当前下落中的 4x4 方块 =======
+        int[][] brickData = brick.getBrickData();
+        rectangles = new Rectangle[brickData.length][brickData[0].length];
+
+        for (int i = 0; i < brickData.length; i++) {
+            for (int j = 0; j < brickData[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                rectangle.setFill(getFillColor(brickData[i][j]));
                 rectangles[i][j] = rectangle;
                 brickPanel.add(rectangle, j, i);
             }
         }
-        brickPanel.setLayoutX(gamePanel.getLayoutX()
-                + brick.getxPosition() * brickPanel.getVgap()
-                + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(BRICK_PANEL_OFFSET_Y
-                + gamePanel.getLayoutY()
-                + brick.getyPosition() * brickPanel.getHgap()
-                + brick.getyPosition() * BRICK_SIZE);
 
+        // 初始位置：根据棋盘坐标→像素坐标（不再用 -42 魔法数）
+        updateBrickPanelPosition(brick);
+
+        // 自动下落计时器
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(FALL_INTERVAL_MS),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
@@ -162,18 +165,33 @@ public class GuiController implements Initializable {
         return Color.WHITE;
     }
 
+    /**
+     * 把 ViewData 中的 x / y（逻辑坐标）转换为像素坐标，更新 brickPanel 的位置。
+     * 公式：
+     *   像素X = gamePanel.X + x * (BRICK_SIZE + hgap)
+     *   像素Y = gamePanel.Y + (y - 隐藏行数) * (BRICK_SIZE + vgap)
+     */
+    private void updateBrickPanelPosition(ViewData brick) {
+        double cellWidth = BRICK_SIZE + brickPanel.getHgap();
+        double cellHeight = BRICK_SIZE + brickPanel.getVgap();
+
+        double x = gamePanel.getLayoutX() + brick.getxPosition() * cellWidth;
+        double y = gamePanel.getLayoutY() + (brick.getyPosition() - BOARD_HIDDEN_ROWS) * cellHeight;
+
+        brickPanel.setLayoutX(x);
+        brickPanel.setLayoutY(y);
+    }
+
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX()
-                    + brick.getxPosition() * brickPanel.getVgap()
-                    + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(BRICK_PANEL_OFFSET_Y
-                    + gamePanel.getLayoutY()
-                    + brick.getyPosition() * brickPanel.getHgap()
-                    + brick.getyPosition() * BRICK_SIZE);
-            for (int i = 0; i < brick.getBrickData().length; i++) {
-                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
+            // 更新位置
+            updateBrickPanelPosition(brick);
+
+            // 更新 4x4 方块内每一格的颜色
+            int[][] brickData = brick.getBrickData();
+            for (int i = 0; i < brickData.length; i++) {
+                for (int j = 0; j < brickData[i].length; j++) {
+                    setRectangleData(brickData[i][j], rectangles[i][j]);
                 }
             }
         }
@@ -212,6 +230,7 @@ public class GuiController implements Initializable {
     }
 
     public void bindScore(IntegerProperty integerProperty) {
+        // 这里可以绑定一个 Label 来显示分数，目前留空即可
     }
 
     public void gameOver() {
