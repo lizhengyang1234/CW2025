@@ -1,27 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <?import com.comp2042.GameOverPanel?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import java.net.URL?>
 
+<!--
+  游戏主界面的根容器。
+  使用 Pane 作为绝对布局容器，里面手动指定各个控件的坐标。
+  Root container of the main game view.
+  Uses Pane for absolute positioning of children (manual layoutX/layoutY).
+-->
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
-    <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
+
+    <!--
+      当前下落方块所在的 4x4 小网格。
+      逻辑层通过 GuiController 来更新这个 GridPane 里的 Rectangle 显示。
+      4x4 grid used to render the current falling tetromino.
+      GuiController updates the Rectangles inside this grid.
+    -->
+    <GridPane fx:id="brickPanel"
+              vgap="1" hgap="1"/>
+
+    <!--
+      整个游戏棋盘的外框（玻璃质感边框），CSS 中使用 .gameBoard 设置样式。
+      中间的 gamePanel 是实际用于显示背景方块的网格。
+      Outer frame of the playfield (glass-like border), styled by .gameBoard in CSS.
+      The inner gamePanel is the grid used to render settled blocks.
+    -->
     <BorderPane styleClass="gameBoard" fx:id="gameBoard">
         <center>
-            <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
+            <!--
+              真正的背景棋盘网格，里面每个单元格是一个 Rectangle。
+              行列数量由逻辑层传入（25x10，其中前两行隐藏）。
+              The background board grid. Each cell is a Rectangle.
+              Its size (25x10, with top 2 rows hidden) is controlled by the logic layer.
+            -->
+            <GridPane fx:id="gamePanel"
+                      hgap="1" vgap="1"
+                      layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
 
-    <Group fx:id="groupNotification" layoutX="14" layoutY="203">
+    <!--
+      暂停按钮：放在游戏界面右上角。
+      点击后触发 GuiController.pauseGame(ActionEvent)。
+      使用 CSS 类 roundPause 来美化样式（圆形玻璃按钮）。
+      Pause button in the top-right corner.
+      Triggers GuiController.pauseGame(ActionEvent).
+      Uses CSS class 'roundPause' for styling.
+    -->
+    <Button fx:id="pauseButton"
+            text="P"
+            layoutX="330" layoutY="20"
+            onAction="#pauseGame"
+            styleClass="roundPause"/>
+
+    <!--
+      分数标题标签，用于显示“SCORE”文字说明。
+      Static label showing the "SCORE" title.
+    -->
+    <Label text="SCORE"
+           layoutX="330" layoutY="70"
+           styleClass="helpInfo"/>
+
+    <!--
+      分数字符串显示标签，内容会在 GuiController.bindScore() 中绑定 Score。
+      Label for the numeric score value, bound via GuiController.bindScore().
+    -->
+    <Label fx:id="scoreLabel"
+           text="0"
+           layoutX="330" layoutY="90"
+           styleClass="scoreClass"/>
+
+    <!--
+      用于显示加分提示和 GAME OVER 界面的图层。
+      通常叠加在棋盘上方。
+      Layer used to show score notifications and the GAME OVER panel.
+      It is displayed on top of the board.
+    -->
+    <Group fx:id="groupNotification"
+           layoutX="14" layoutY="203">
         <VBox alignment="CENTER">
             <GameOverPanel fx:id="gameOverPanel"/>
         </VBox>
     </Group>
+
+    <!--
+      界面样式文件。
+      包含背景图片、棋盘边框、字体、按钮等的 CSS 配置。
+      Stylesheet for the window.
+      Contains CSS for background image, board border, fonts, buttons, etc.
+    -->
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>
+
 </Pane>

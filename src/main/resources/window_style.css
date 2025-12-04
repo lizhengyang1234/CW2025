@@ -3,7 +3,7 @@
 .root {
     -fx-background-image: url("background_image.png");
     -fx-background-repeat: no-repeat;
-    -fx-background-size: cover;    /* 或者 stretch */
+    -fx-background-size: cover;    /* or: stretch */
     -fx-background-position: center center;
 }
 
@@ -15,12 +15,22 @@
     -fx-border-radius: 17px;
 }
 
-/* 游戏主棋盘的外框样式（蓝色渐变边框） */
-/* Main game board border with a blue gradient frame */
+/* 游戏主棋盘的外框样式（玻璃质感边框） */
+/* Main game board with glass-like border */
 .gameBoard {
-    -fx-border-color: linear-gradient(#2A5058, #61a2b1);
-    -fx-border-width: 12px;
-    -fx-border-radius: 12px;
+    /* 半透明深色背景 */
+    -fx-background-color: rgba(5, 10, 20, 0.45);
+
+    /* 细白色边框，稍微带点透明 */
+    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-border-width: 2px;
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+
+    /* 柔和阴影，让边框有漂浮感 */
+    -fx-effect: dropshadow( three-pass-box,
+                            rgba(0, 0, 0, 0.7),
+                            18, 0.0, 0, 8);
 }
 
 /* “Next” 标签的字体样式 */
@@ -93,4 +103,95 @@
     -fx-font-size: 38;
     -fx-fill: yellow;
     -fx-text-fill: yellow;
+}
+
+/* 通用游戏按钮样式：圆角、扁平、带一点阴影 */
+/* General pill-shaped game buttons */
+.gameButton {
+    -fx-padding: 6 14 6 14;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-font-size: 14px;
+    -fx-font-family: "Let's go Digital", "Arial";
+    -fx-font-weight: bold;
+
+    -fx-background-color: linear-gradient(#3c3f41, #252628);
+    -fx-text-fill: #f0f0f0;
+    -fx-border-color: #7ac7ff;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.45) , 4 , 0.0 , 0 , 2 );
+}
+
+/* 鼠标悬停效果 */
+/* Hover effect for general buttons */
+.gameButton:hover {
+    -fx-background-color: linear-gradient(#4a8fdc, #235c9b);
+    -fx-text-fill: white;
+    -fx-border-color: #ffffff;
+}
+
+/* 按下时效果 */
+/* Pressed state */
+.gameButton:pressed {
+    -fx-background-color: linear-gradient(#1f406d, #162b47);
+    -fx-translate-y: 1;
+}
+
+/* 特别强调的按钮（比如 New Game） */
+/* Emphasized primary button (e.g. New Game) */
+.gameButton-primary {
+    -fx-background-color: linear-gradient(#ffb347, #ff7b00);
+    -fx-border-color: #ffd27a;
+    -fx-text-fill: #222;
+}
+
+.gameButton-primary:hover {
+    -fx-background-color: linear-gradient(#ffd27a, #ff9e2c);
+    -fx-border-color: white;
+}
+
+/* ====== 圆形暂停按钮 / Round pause button ====== */
+/* Small circular glass-style pause/resume button */
+.roundPause {
+    /* 固定成小圆按钮 */
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-pref-width: 40;
+    -fx-pref-height: 40;
+    -fx-max-width: 40;
+    -fx-max-height: 40;
+
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+
+    /* 半透明背景 + 细白边框 */
+    -fx-background-color: rgba(0, 0, 0, 0.55);
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-width: 1.5;
+
+    /* 这里只用通用字体，避免“三个点”乱码问题 */
+    -fx-font-family: "Arial";
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+
+    -fx-cursor: hand;
+
+    /* 轻微阴影 */
+    -fx-effect: dropshadow( three-pass-box,
+                            rgba(0, 0, 0, 0.6),
+                            8, 0.0, 0, 2);
+}
+
+/* 悬停 / Hover */
+.roundPause:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: white;
+}
+
+/* 按下 / Pressed */
+.roundPause:pressed {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-translate-y: 1;
 }
