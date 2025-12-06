@@ -1,30 +1,40 @@
-// 分数类：用来记录玩家当前的得分，并提供更新和重置的方法。
-// 使用 JavaFX 的 IntegerProperty，可以让 GUI 自动监听分数变化并实时更新显示。
-// 本类本身不负责计算分数，只是一个简单的计分器。
-//
-// Score class: stores the player's score using an IntegerProperty,
-// so the GUI can automatically react to score changes. Provides
-// methods for adding points and resetting the score. Does not
-// contain scoring logic itself.
-
 package com.comp2042;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
+// 分数系统：现在除了分数，还额外记录“总共消掉了多少行”。
+// Scoring system: now also tracks how many lines have been cleared in total.
 public final class Score {
 
+    // 当前分数
     private final IntegerProperty score = new SimpleIntegerProperty(0);
+
+    // 新增：总共消除的行数
+    private final IntegerProperty lines = new SimpleIntegerProperty(0);
 
     public IntegerProperty scoreProperty() {
         return score;
     }
 
-    public void add(int i){
-        score.setValue(score.getValue() + i);
+    // 新增：让 GUI 绑定总消行数
+    public IntegerProperty linesProperty() {
+        return lines;
     }
 
+    // 加分
+    public void add(int i) {
+        score.set(score.get() + i);
+    }
+
+    // 新增：增加消行统计
+    public void addLines(int count) {
+        lines.set(lines.get() + count);
+    }
+
+    // 重置分数和总消行数
     public void reset() {
-        score.setValue(0);
+        score.set(0);
+        lines.set(0);
     }
 }

@@ -75,6 +75,10 @@ public class GuiController implements Initializable {
     @FXML
     private Label scoreLabel;
 
+    // ★ 新增：显示总消除行数的标签（在 FXML 中 fx:id="linesLabel"）
+    @FXML
+    private Label linesLabel;
+
     // 预览“下一个方块”的小网格（在 FXML 中 fx:id="nextBrickPanel"）
     @FXML
     private GridPane nextBrickPanel;
@@ -294,6 +298,13 @@ public class GuiController implements Initializable {
     public void bindScore(IntegerProperty scoreProperty) {
         if (scoreLabel != null && scoreProperty != null) {
             scoreLabel.textProperty().bind(scoreProperty.asString());
+        }
+    }
+
+    // ★ 新增：把“总消行数”绑定到右侧的 linesLabel
+    public void bindLines(IntegerProperty linesProperty) {
+        if (linesLabel != null && linesProperty != null) {
+            linesLabel.textProperty().bind(linesProperty.asString());
         }
     }
 

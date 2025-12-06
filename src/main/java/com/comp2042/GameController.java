@@ -16,7 +16,11 @@ public class GameController implements InputEventListener {
         board.createNewBrick();
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
+
+        // 绑定分数到右侧 SCORE
         viewGuiController.bindScore(board.getScore().scoreProperty());
+        // 新增：绑定总消行数到右侧 LINES
+        viewGuiController.bindLines(board.getScore().linesProperty());
     }
 
     /**
@@ -44,7 +48,10 @@ public class GameController implements InputEventListener {
             // 检查并清行
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
+                Score score = board.getScore();
+                score.add(clearRow.getScoreBonus());
+                // 把这次消掉的行数加到总行数里
+                score.addLines(clearRow.getLinesRemoved());
             }
 
             // 为硬降的每一格移动加分（例如 1 分/格）
@@ -72,7 +79,10 @@ public class GameController implements InputEventListener {
             // 检查并清行，加分
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
+                Score score = board.getScore();
+                score.add(clearRow.getScoreBonus());
+                // 普通下落时也要累计总消行数
+                score.addLines(clearRow.getLinesRemoved());
             }
 
             // 生成新方块，若一开始就冲突，则游戏结束

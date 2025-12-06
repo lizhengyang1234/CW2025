@@ -17,92 +17,62 @@
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
 
-    <!--
-      当前下落方块所在的 4x4 小网格。
-      逻辑层通过 GuiController 来更新这个 GridPane 里的 Rectangle 显示。
-      4x4 grid used to render the current falling tetromino.
-      GuiController updates the Rectangles inside this grid.
-    -->
+    <!-- 当前下落方块的 4x4 网格 -->
     <GridPane fx:id="brickPanel"
               vgap="1" hgap="1"/>
 
-    <!--
-      整个游戏棋盘的外框（玻璃质感边框），CSS 中使用 .gameBoard 设置样式。
-      中间的 gamePanel 是实际用于显示背景方块的网格。
-      Outer frame of the playfield (glass-like border), styled by .gameBoard in CSS.
-      The inner gamePanel is the grid used to render settled blocks.
-    -->
+    <!-- 游戏棋盘外框 + 内部网格 -->
     <BorderPane styleClass="gameBoard" fx:id="gameBoard">
         <center>
-            <!--
-              真正的背景棋盘网格，里面每个单元格是一个 Rectangle。
-              行列数量由逻辑层传入（25x10，其中前两行隐藏）。
-              The background board grid. Each cell is a Rectangle.
-              Its size (25x10, with top 2 rows hidden) is controlled by the logic layer.
-            -->
             <GridPane fx:id="gamePanel"
                       hgap="1" vgap="1"
                       layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
 
-    <!--
-      暂停按钮：放在游戏界面右上角。
-      点击后触发 GuiController.pauseGame(ActionEvent)。
-      使用 CSS 类 roundPause 来美化样式（圆形玻璃按钮）。
-      Pause button in the top-right corner.
-      Triggers GuiController.pauseGame(ActionEvent).
-      Uses CSS class 'roundPause' for styling.
-    -->
+    <!-- 暂停按钮（圆形） -->
     <Button fx:id="pauseButton"
             text="⏸"
             layoutX="330" layoutY="20"
             onAction="#pauseGame"
             styleClass="roundPause"/>
 
-    <!-- New Game 按钮：圆形，调用 newGame -->
+    <!-- New Game 按钮（圆形） -->
     <Button fx:id="newGameButton"
             text="N"
             layoutX="330" layoutY="75"
             onAction="#newGame"
             styleClass="roundPause"/>
 
-    <!--
-      分数标题标签，用于显示“SCORE”文字说明。
-      Static label showing the "SCORE" title.
-    -->
+    <!-- SCORE 标题 -->
     <Label text="SCORE"
            layoutX="330" layoutY="130"
            styleClass="helpInfo"/>
 
-    <!--
-      分数字符串显示标签，内容会在 GuiController.bindScore() 中绑定 Score。
-      Label for the numeric score value, bound via GuiController.bindScore().
-    -->
+    <!-- 分数数字，绑定到 GuiController.bindScore(...) -->
     <Label fx:id="scoreLabel"
            text="0"
            layoutX="340" layoutY="160"
            styleClass="scoreClass"/>
 
-    <!--
-      下一个方块预览区域：一个 4x4 的小 GridPane。
-      GuiController 会在其中绘制下一块砖的形状。
-      Preview panel for the next tetromino (4x4 grid).
-      GuiController draws the next brick here.
-    -->
-    <!-- 预览下一个方块的小区域 -->
-    <GridPane fx:id="nextBrickPanel"
-              layoutX="330" layoutY="220"
-              prefWidth="70" prefHeight="70"
-              hgap="1" vgap="1"
-              styleClass="nextBrick"/>
+    <!-- ★★★ LINES 标题 -->
+    <Label text="LINES"
+           layoutX="330" layoutY="210"
+           styleClass="helpInfo"/>
 
-    <!--
-      用于显示加分提示和 GAME OVER 界面的图层。
-      通常叠加在棋盘上方。
-      Layer used to show score notifications and the GAME OVER panel.
-      It is displayed on top of the board.
-    -->
+    <!-- ★★★ 行数数字，绑定到 GuiController.bindLines(...) -->
+    <Label fx:id="linesLabel"
+           text="0"
+           layoutX="340" layoutY="240"
+           styleClass="scoreClass"/>
+
+    <!-- 下一个方块预览区域（4x4 小网格） -->
+    <GridPane fx:id="nextBrickPanel"
+              layoutX="330" layoutY="300"
+              prefWidth="70" prefHeight="70"
+              hgap="1" vgap="1"/>
+
+    <!-- 加分提示 & GAME OVER 面板所在图层 -->
     <Group fx:id="groupNotification"
            layoutX="14" layoutY="203">
         <VBox alignment="CENTER">
@@ -110,12 +80,7 @@
         </VBox>
     </Group>
 
-    <!--
-      界面样式文件。
-      包含背景图片、棋盘边框、字体、按钮等的 CSS 配置。
-      Stylesheet for the window.
-      Contains CSS for background image, board border, fonts, buttons, etc.
-    -->
+    <!-- 样式文件 -->
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>
