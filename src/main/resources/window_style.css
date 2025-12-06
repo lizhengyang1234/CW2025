@@ -10,19 +10,18 @@
 /* 下一个方块区域的外框样式 */
 /* Border style for the preview box showing the next brick */
 .nextBrick {
-    -fx-border-width: 2px;
-    -fx-border-color: whitesmoke;
-    -fx-border-radius: 17px;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
 }
 
 /* 游戏主棋盘的外框样式（玻璃质感边框） */
 /* Main game board with glass-like border */
 .gameBoard {
     /* 半透明深色背景 */
-    -fx-background-color: rgba(5, 10, 20, 0.45);
+    -fx-background-color: rgba(50, 80, 120, 0.20);
 
     /* 细白色边框，稍微带点透明 */
-    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-border-color: rgba(255, 255, 255, 0.45);
     -fx-border-width: 2px;
     -fx-background-radius: 24;
     -fx-border-radius: 24;

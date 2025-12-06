@@ -55,9 +55,16 @@
       Uses CSS class 'roundPause' for styling.
     -->
     <Button fx:id="pauseButton"
-            text="P"
+            text="⏸"
             layoutX="330" layoutY="20"
             onAction="#pauseGame"
+            styleClass="roundPause"/>
+
+    <!-- New Game 按钮：圆形，调用 newGame -->
+    <Button fx:id="newGameButton"
+            text="N"
+            layoutX="330" layoutY="75"
+            onAction="#newGame"
             styleClass="roundPause"/>
 
     <!--
@@ -65,7 +72,7 @@
       Static label showing the "SCORE" title.
     -->
     <Label text="SCORE"
-           layoutX="330" layoutY="70"
+           layoutX="330" layoutY="130"
            styleClass="helpInfo"/>
 
     <!--
@@ -74,8 +81,21 @@
     -->
     <Label fx:id="scoreLabel"
            text="0"
-           layoutX="330" layoutY="90"
+           layoutX="340" layoutY="160"
            styleClass="scoreClass"/>
+
+    <!--
+      下一个方块预览区域：一个 4x4 的小 GridPane。
+      GuiController 会在其中绘制下一块砖的形状。
+      Preview panel for the next tetromino (4x4 grid).
+      GuiController draws the next brick here.
+    -->
+    <!-- 预览下一个方块的小区域 -->
+    <GridPane fx:id="nextBrickPanel"
+              layoutX="330" layoutY="220"
+              prefWidth="70" prefHeight="70"
+              hgap="1" vgap="1"
+              styleClass="nextBrick"/>
 
     <!--
       用于显示加分提示和 GAME OVER 界面的图层。
