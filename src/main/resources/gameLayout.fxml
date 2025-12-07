@@ -5,15 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
 <?import java.net.URL?>
 
-<!--
-  游戏主界面的根容器。
-  使用 Pane 作为绝对布局容器，里面手动指定各个控件的坐标。
-  Root container of the main game view.
-  Uses Pane for absolute positioning of children (manual layoutX/layoutY).
--->
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
 
@@ -30,45 +23,41 @@
         </center>
     </BorderPane>
 
-    <!-- 暂停按钮（圆形） -->
+    <!-- ===== 右侧控制区 ===== -->
+
+    <!-- 方块贴着边框的“正方形”按钮 -->
+    <!-- 让它们紧挨着棋盘右边缘，大概 X=332，正好靠边 -->
     <Button fx:id="pauseButton"
             text="⏸"
-            layoutX="330" layoutY="20"
+            layoutX="332" layoutY="30"
             onAction="#pauseGame"
-            styleClass="roundPause"/>
+            styleClass="sideButton"/>
 
-    <!-- New Game 按钮（圆形） -->
     <Button fx:id="newGameButton"
             text="N"
-            layoutX="330" layoutY="75"
+            layoutX="332" layoutY="90"
             onAction="#newGame"
-            styleClass="roundPause"/>
+            styleClass="sideButton"/>
 
-    <!-- SCORE 标题 -->
-    <Label text="SCORE"
-           layoutX="330" layoutY="130"
-           styleClass="helpInfo"/>
+    <!-- Score 显示区域：整体右移一点，不贴边框 -->
+    <HBox layoutX="380" layoutY="150" spacing="6">
+        <Label text="SCORE" styleClass="titleLabel"/>
+        <Label fx:id="scoreLabel"
+               text="0"
+               styleClass="numberLabel"/>
+    </HBox>
 
-    <!-- 分数数字，绑定到 GuiController.bindScore(...) -->
-    <Label fx:id="scoreLabel"
-           text="0"
-           layoutX="340" layoutY="160"
-           styleClass="scoreClass"/>
+    <!-- Lines 显示区域：同样右移，和 Score 对齐 -->
+    <HBox layoutX="380" layoutY="210" spacing="6">
+        <Label text="LINES" styleClass="titleLabel"/>
+        <Label fx:id="linesLabel"
+               text="0"
+               styleClass="numberLabel"/>
+    </HBox>
 
-    <!-- ★★★ LINES 标题 -->
-    <Label text="LINES"
-           layoutX="330" layoutY="210"
-           styleClass="helpInfo"/>
-
-    <!-- ★★★ 行数数字，绑定到 GuiController.bindLines(...) -->
-    <Label fx:id="linesLabel"
-           text="0"
-           layoutX="340" layoutY="240"
-           styleClass="scoreClass"/>
-
-    <!-- 下一个方块预览区域（4x4 小网格） -->
+    <!-- 下一个方块预览区域（4x4 小网格），也离边框一点 -->
     <GridPane fx:id="nextBrickPanel"
-              layoutX="330" layoutY="300"
+              layoutX="370" layoutY="280"
               prefWidth="70" prefHeight="70"
               hgap="1" vgap="1"/>
 
