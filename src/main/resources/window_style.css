@@ -3,11 +3,10 @@
 /* ===================================== */
 
 /* 整体背景：使用一张图片作为游戏窗口背景 */
-/* Root background: applies a background image to the whole window */
 .root {
     -fx-background-image: url("background_image.png");
     -fx-background-repeat: no-repeat;
-    -fx-background-size: cover;    /* or: stretch */
+    -fx-background-size: cover;
     -fx-background-position: center center;
 }
 
@@ -15,25 +14,25 @@
 /*        棋盘 & 方块区域         */
 /* ============================= */
 
-/* 下一个方块区域（预览区域）：去掉边框，保持透明背景 */
+/* 右侧“下一个方块”预览区域：透明背景 */
 .nextBrick {
     -fx-border-width: 0;
     -fx-background-color: transparent;
 }
 
-/* 游戏主棋盘的外框样式（玻璃质感边框） */
-/* Main game board with glass-like border */
+/* 游戏主棋盘：亮一点的玻璃效果，不再压暗背景 */
 .gameBoard {
-    -fx-background-color: rgba(0, 0, 50, 0.40);
-
-    -fx-border-color: #4da6ff;
-    -fx-border-width: 4px;   /* 粗边框像像素 */
-    -fx-border-radius: 2;    /* 小圆角保持 pixel look */
-
-    -fx-effect: dropshadow(gaussian, rgba(50,150,255,0.6), 6, 0.3, 0, 0);
+    -fx-background-color: rgba(255, 255, 255, 0.04);              /* 几乎透明 */
+    -fx-border-color: rgba(120, 190, 255, 0.7);                   /* 柔和蓝色边框 */
+    -fx-border-width: 2px;
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+    -fx-effect: dropshadow(three-pass-box,
+                           rgba(0, 0, 0, 0.45),
+                           14, 0.0, 0, 6);
 }
 
-/* 用于某些矩形砖块的渐变内容填充（如果需要单独高亮某些块） */
+/* 可选：特殊高亮块的渐变填充 */
 .rectangleStyle {
     -fx-fill: linear-gradient(from 41px 34px to 50px 50px, reflect, #ff7f50 30%, #faebd7 47%);
 }
@@ -42,7 +41,7 @@
 /*          文本 / 标签样式       */
 /* ============================= */
 
-/* 普通小提示文字（可以用于帮助信息等） */
+/* 小提示文字（如果还有用到 helpInfo） */
 .helpInfo {
     -fx-text-fill: white;
     -fx-font-size: 14px;
@@ -50,24 +49,28 @@
     -fx-text-alignment: left;
 }
 
-/* ★ SCORE / LINES 标题：柔和浅蓝，带一点阴影 */
-/* Titles: "SCORE", "LINES" */
-.blueTitle {
-    -fx-text-fill: #7CCBFF;              /* 柔和浅蓝 */
-    -fx-font-size: 18px;
+/* 右侧信息标题（“Score”, “Lines”） */
+.titleLabel {
+    -fx-text-fill: #cce6ff;                /* 淡蓝白 */
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Arial";
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 3, 0.4, 1, 1);
 }
 
-/* ★ 分数 / 行数的数字：冰蓝色 + 光晕 */
-/* Numeric displays for score & lines */
-.blueNumber {
-    -fx-text-fill: #A6E4FF;              /* 冰蓝色 */
-    -fx-font-size: 26px;
-    -fx-font-weight: bold;
-    -fx-font-family: "digital", "Arial"; /* 使用你的 digital.ttf */
-    -fx-effect: dropshadow(gaussian, rgba(120,200,255,0.9), 6, 0.5, 0, 0);
+/* 右侧数字（分数 / 行数） */
+.numberLabel {
+    -fx-text-fill: #4dd2ff;                /* 亮科技蓝 */
+    -fx-font-size: 22px;
+    -fx-font-family: "Let's go Digital", "Arial";
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.7), 8, 0.5, 0, 0);
+}
+
+/* 原来的分数样式（如果还有老地方用，就先保留） */
+.scoreClass {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 38;
+    -fx-fill: yellow;
+    -fx-text-fill: yellow;
 }
 
 /* GAME OVER 文本样式 */
@@ -83,18 +86,7 @@
     -fx-font-weight: bold;
 }
 
-/* 可以保留旧的 scoreClass（如果有地方还在用） */
-.scoreClass {
-    -fx-font-family: "Let's go Digital";
-    -fx-font-size: 38;
-    -fx-fill: yellow;
-    -fx-text-fill: yellow;
-}
-
-/* ============================= */
-/*          布局辅助样式          */
-/* ============================= */
-
+/* VBox 默认间距 */
 .vbox {
     -fx-spacing: 12;
 }
@@ -103,138 +95,51 @@
 /*           按钮样式             */
 /* ============================= */
 
-/* 圆形暂停/新游戏按钮：右侧的小圆按钮 */
-/* Small circular glass-style pause/resume/NewGame button */
+/* 右侧功能按钮：Pause / Restart，都用这个 */
+/* 正方形科技蓝按钮 */
+.sideButton {
+    -fx-min-width: 80;
+    -fx-min-height: 40;
+    -fx-pref-width: 80;
+    -fx-pref-height: 40;
+
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+
+    -fx-background-color: linear-gradient(#1E3C72, #2A5298); /* 蓝色渐变 */
+    -fx-border-color: rgba(255,255,255,0.4);
+    -fx-border-width: 1.5;
+
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 6, 0.3, 1, 1);
+}
+
+/* Hover 效果 */
+.sideButton:hover {
+    -fx-background-color: linear-gradient(#2A5298, #1E3C72);
+    -fx-border-color: white;
+}
+
+/* Pressed 效果 */
+.sideButton:pressed {
+    -fx-background-color: linear-gradient(#142850, #1E3A67);
+    -fx-translate-y: 1;
+}
+
+/* 如果项目里还留有 roundPause 的引用，就给它一个简单样式，避免报错 */
 .roundPause {
-    /* 固定成小圆按钮 */
     -fx-min-width: 40;
     -fx-min-height: 40;
-    -fx-pref-width: 40;
-    -fx-pref-height: 40;
-    -fx-max-width: 40;
-    -fx-max-height: 40;
-
     -fx-background-radius: 20;
     -fx-border-radius: 20;
-
-    /* 半透明背景 + 细白边框 */
-    -fx-background-color: rgba(0, 0, 0, 0.55);
-    -fx-border-color: rgba(255, 255, 255, 0.7);
-    -fx-border-width: 1.5;
-
-    /* 用通用字体避免显示成三个点的问题 */
-    -fx-font-family: "Arial";
-    -fx-font-size: 16px;
-    -fx-text-fill: white;
-
-    -fx-cursor: hand;
-
-    /* 轻微阴影 */
-    -fx-effect: dropshadow( three-pass-box,
-                            rgba(0, 0, 0, 0.6),
-                            8, 0.0, 0, 2);
-}
-
-/* 悬停 / Hover */
-.roundPause:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.2);
-    -fx-border-color: white;
-}
-
-/* 按下 / Pressed */
-.roundPause:pressed {
-    -fx-background-color: rgba(0, 0, 0, 0.8);
-    -fx-translate-y: 1;
-}
-
-/* 通用游戏按钮（如果以后要加别的按钮可以用这个 class） */
-.gameButton {
-    -fx-padding: 6 14 6 14;
-    -fx-background-radius: 18;
-    -fx-border-radius: 18;
-    -fx-font-size: 14px;
-    -fx-font-family: "Arial";
-    -fx-font-weight: bold;
-
-    -fx-background-color: linear-gradient(#3c3f41, #252628);
-    -fx-text-fill: #f0f0f0;
-    -fx-border-color: #7ac7ff;
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-border-color: rgba(255,255,255,0.5);
     -fx-border-width: 1;
-    -fx-cursor: hand;
-
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.45) , 4 , 0.0 , 0 , 2 );
-}
-
-.gameButton:hover {
-    -fx-background-color: linear-gradient(#4a8fdc, #235c9b);
     -fx-text-fill: white;
-    -fx-border-color: #ffffff;
-}
-
-.gameButton:pressed {
-    -fx-background-color: linear-gradient(#1f406d, #162b47);
-    -fx-translate-y: 1;
-}
-
-.gameButton-primary {
-    -fx-background-color: linear-gradient(#ffb347, #ff7b00);
-    -fx-border-color: #ffd27a;
-    -fx-text-fill: #222;
-}
-
-.gameButton-primary:hover {
-    -fx-background-color: linear-gradient(#ffd27a, #ff9e2c);
-    -fx-border-color: white;
-}
-/* 右侧竖着贴边的正方形按钮 */
-.sideButton {
-    -fx-min-width: 40;
-    -fx-min-height: 40;
-    -fx-pref-width: 40;
-    -fx-pref-height: 40;
-    -fx-max-width: 40;
-    -fx-max-height: 40;
-
-    /* 稍微有点圆角，但总体是正方形块 */
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-
-    -fx-background-color: rgba(0, 0, 0, 0.55);
-    -fx-border-color: rgba(255, 255, 255, 0.7);
-    -fx-border-width: 1.5;
-
     -fx-font-family: "Arial";
-    -fx-font-size: 16px;
-    -fx-text-fill: white;
-
-    -fx-cursor: hand;
-    -fx-effect: dropshadow( three-pass-box,
-                            rgba(0, 0, 0, 0.6),
-                            8, 0.0, 0, 2);
-}
-
-.sideButton:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.18);
-    -fx-border-color: white;
-}
-
-.sideButton:pressed {
-    -fx-background-color: rgba(0, 0, 0, 0.8);
-    -fx-translate-y: 1;
-}
-
-/* 右侧信息标题（SCORE / LINES） */
-.titleLabel {
-    -fx-text-fill: #cce6ff;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-font-family: "Arial";
-}
-
-/* 右侧数字（分数/行数） */
-.numberLabel {
-    -fx-text-fill: #4dd2ff;
-    -fx-font-size: 22px;
-    -fx-font-family: "Let's go Digital", "Arial";
-    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.7), 8, 0.5, 0, 0);
 }

@@ -24,68 +24,46 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * GUI controller: draw board, current brick, next-brick preview,
- * handle keyboard input, score display, pause / resume / new game.
- */
 public class GuiController implements Initializable {
 
-    // 主游戏区域方块尺寸
     private static final int BRICK_SIZE = 32;
-    // 预览区域方块尺寸（比主区域小）
     private static final int PREVIEW_BRICK_SIZE = 20;
-    // 顶部隐藏的行数（逻辑上存在，但不显示）
     private static final int BOARD_HIDDEN_ROWS = 2;
-    // 自动下落间隔（毫秒）
     private static final int FALL_INTERVAL_MS = 400;
-    // 方块圆角
     private static final int BRICK_CORNER_ARC = 9;
 
-    // 砖块颜色映射表，下标对应砖块 id（0~7）
+    // 砖块颜色表（保持你现在的颜色）
     private static final Paint[] BRICK_COLORS = {
             Color.TRANSPARENT,
             Color.AQUA,
             Color.BLUEVIOLET,
-            Color.DARKGREEN,
+            Color.LIMEGREEN,
             Color.YELLOW,
             Color.RED,
             Color.BEIGE,
             Color.BURLYWOOD
     };
 
-    @FXML
-    private GridPane gamePanel;
+    @FXML private GridPane gamePanel;
+    @FXML private Group groupNotification;
+    @FXML private GridPane brickPanel;
+    @FXML private GameOverPanel gameOverPanel;
+    @FXML private Button pauseButton;
+    @FXML private Button newGameButton;
 
-    @FXML
-    private Group groupNotification;
+    // Score 显示
+    @FXML private Label scoreLabel;
 
-    @FXML
-    private GridPane brickPanel;
+    // 总消除行数显示
+    @FXML private Label linesLabel;
 
-    @FXML
-    private GameOverPanel gameOverPanel;
+    // ⭐ 新增：等级显示（在 FXML 里加 fx:id="levelLabel"）
+    @FXML private Label levelLabel;
 
-    @FXML
-    private Button pauseButton;
+    // 预览“下一个方块”的小网格
+    @FXML private GridPane nextBrickPanel;
 
-    @FXML
-    private Button newGameButton;
-
-    // 分数标签
-    @FXML
-    private Label scoreLabel;
-
-    // ★ 新增：显示总消除行数的标签（在 FXML 中 fx:id="linesLabel"）
-    @FXML
-    private Label linesLabel;
-
-    // 预览“下一个方块”的小网格（在 FXML 中 fx:id="nextBrickPanel"）
-    @FXML
-    private GridPane nextBrickPanel;
-
-    // 背景棋盘的格子
     private Rectangle[][] displayMatrix;
-    // 当前下落方块 4x4 的格子
     private Rectangle[][] rectangles;
 
     private InputEventListener eventListener;
@@ -96,6 +74,7 @@ public class GuiController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
 
         gamePanel.setFocusTraversable(true);
@@ -104,6 +83,7 @@ public class GuiController implements Initializable {
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+
                 if (!isPause.get() && !isGameOver.get()) {
 
                     if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
@@ -148,47 +128,48 @@ public class GuiController implements Initializable {
         });
 
         gameOverPanel.setVisible(false);
+
+        // 初始化等级文字，防止一开始是空的
+        if (levelLabel != null) {
+            levelLabel.setText("1");
+        }
     }
 
-    /**
-     * 初始化游戏视图：创建背景格子、当前砖块 4x4、以及下一块预览。
-     */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
 
-        // ======= 背景棋盘（固定格子） =======
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+
         for (int i = BOARD_HIDDEN_ROWS; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(Color.TRANSPARENT);
-                displayMatrix[i][j] = rectangle;
-                gamePanel.add(rectangle, j, i - BOARD_HIDDEN_ROWS);
+
+                Rectangle rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rect.setFill(Color.TRANSPARENT);
+
+                displayMatrix[i][j] = rect;
+                gamePanel.add(rect, j, i - BOARD_HIDDEN_ROWS);
             }
         }
 
-        // 确保当前方块层在最前面
         brickPanel.toFront();
 
-        // ======= 当前下落中的 4x4 方块 =======
         int[][] brickData = brick.getBrickData();
         rectangles = new Rectangle[brickData.length][brickData[0].length];
 
         for (int i = 0; i < brickData.length; i++) {
             for (int j = 0; j < brickData[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brickData[i][j]));
-                rectangles[i][j] = rectangle;
-                brickPanel.add(rectangle, j, i);
+
+                Rectangle r = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                r.setFill(getFillColor(brickData[i][j]));
+
+                rectangles[i][j] = r;
+                brickPanel.add(r, j, i);
             }
         }
 
-        // 初始位置
         updateBrickPanelPosition(brick);
 
-        // 初始时绘制一次“下一个方块”预览
         refreshNextBrick(brick);
 
-        // 自动下落计时器
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(FALL_INTERVAL_MS),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
@@ -196,9 +177,7 @@ public class GuiController implements Initializable {
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
 
-        if (pauseButton != null) {
-            pauseButton.setText("⏸");
-        }
+        pauseButton.setText("Pause");
     }
 
     private Paint getFillColor(int id) {
@@ -206,26 +185,25 @@ public class GuiController implements Initializable {
         return Color.WHITE;
     }
 
-    /**
-     * 根据逻辑坐标更新 4x4 当前砖块的面板位置。
-     */
     private void updateBrickPanelPosition(ViewData brick) {
-        double cellWidth = BRICK_SIZE + brickPanel.getHgap();
-        double cellHeight = BRICK_SIZE + brickPanel.getVgap();
+        double w = BRICK_SIZE + brickPanel.getHgap();
+        double h = BRICK_SIZE + brickPanel.getVgap();
 
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * cellWidth);
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - BOARD_HIDDEN_ROWS) * cellHeight);
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * w);
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - BOARD_HIDDEN_ROWS) * h);
     }
 
     private void refreshBrick(ViewData brick) {
         if (!isPause.get()) {
+
             brickPanel.toFront();
             updateBrickPanelPosition(brick);
 
-            int[][] brickData = brick.getBrickData();
-            for (int i = 0; i < brickData.length; i++) {
-                for (int j = 0; j < brickData[i].length; j++) {
-                    setRectangleData(brickData[i][j], rectangles[i][j]);
+            int[][] data = brick.getBrickData();
+
+            for (int i = 0; i < data.length; i++) {
+                for (int j = 0; j < data[i].length; j++) {
+                    setRectangleData(data[i][j], rectangles[i][j]);
                 }
             }
         }
@@ -239,50 +217,46 @@ public class GuiController implements Initializable {
         }
     }
 
-    private void setRectangleData(int color, Rectangle rectangle) {
-        rectangle.setFill(getFillColor(color));
-        rectangle.setArcHeight(BRICK_CORNER_ARC);
-        rectangle.setArcWidth(BRICK_CORNER_ARC);
+    private void setRectangleData(int color, Rectangle r) {
+        r.setFill(getFillColor(color));
+        r.setArcHeight(BRICK_CORNER_ARC);
+        r.setArcWidth(BRICK_CORNER_ARC);
     }
 
     private void moveDown(MoveEvent event) {
+
         if (!isPause.get()) {
+
             DownData downData = eventListener.onDownEvent(event);
 
             if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                NotificationPanel notificationPanel =
-                        new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
-                groupNotification.getChildren().add(notificationPanel);
-                notificationPanel.showScore(groupNotification.getChildren());
+
+                NotificationPanel np = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                groupNotification.getChildren().add(np);
+                np.showScore(groupNotification.getChildren());
             }
 
-            // 更新当前方块在主棋盘上的位置
             refreshBrick(downData.getViewData());
-            // 同时更新右侧“下一个方块”预览
             refreshNextBrick(downData.getViewData());
         }
+
         gamePanel.requestFocus();
     }
 
-    /**
-     * 一键硬降：空格键调用。
-     * 需要配合 EventType.HARD_DROP 和 GameController.onDownEvent 的逻辑。
-     */
     private void hardDrop() {
-        if (isPause.get() || isGameOver.get()) {
-            return;
-        }
+
+        if (isPause.get() || isGameOver.get()) return;
 
         DownData downData =
-                eventListener.onDownEvent(
-                        new MoveEvent(EventType.HARD_DROP, EventSource.USER));
+                eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
 
-        if (downData.getClearRow() != null
-                && downData.getClearRow().getLinesRemoved() > 0) {
-            NotificationPanel notificationPanel =
+        if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+
+            NotificationPanel np =
                     new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
-            groupNotification.getChildren().add(notificationPanel);
-            notificationPanel.showScore(groupNotification.getChildren());
+
+            groupNotification.getChildren().add(np);
+            np.showScore(groupNotification.getChildren());
         }
 
         refreshBrick(downData.getViewData());
@@ -294,17 +268,39 @@ public class GuiController implements Initializable {
         this.eventListener = eventListener;
     }
 
-    // 分数绑定到右侧 scoreLabel
     public void bindScore(IntegerProperty scoreProperty) {
-        if (scoreLabel != null && scoreProperty != null) {
-            scoreLabel.textProperty().bind(scoreProperty.asString());
-        }
+        scoreLabel.textProperty().bind(scoreProperty.asString());
     }
 
-    // ★ 新增：把“总消行数”绑定到右侧的 linesLabel
+    /**
+     * 显示“总消行数”，并且：
+     *  - 每 5 行提升一级
+     *  - 同时更新等级 Label 和 下落速度
+     */
     public void bindLines(IntegerProperty linesProperty) {
         if (linesLabel != null && linesProperty != null) {
+
+            // 显示行数
             linesLabel.textProperty().bind(linesProperty.asString());
+
+            // 监听行数 → 更新等级 和 下落速度
+            linesProperty.addListener((obs, oldVal, newVal) -> {
+                if (timeLine != null) {
+                    int lines = newVal.intValue();
+
+                    // ★ 每 5 行提升一级；最少是 1 级
+                    int level = lines / 5 + 1;
+
+                    // 更新等级文字
+                    if (levelLabel != null) {
+                        levelLabel.setText(String.valueOf(level));
+                    }
+
+                    // 每级快 20%（你可以自己改系数）
+                    double rate = 1.0 + (level - 1) * 0.2;
+                    timeLine.setRate(rate);
+                }
+            });
         }
     }
 
@@ -314,61 +310,59 @@ public class GuiController implements Initializable {
         isGameOver.set(true);
     }
 
-    public void newGame(ActionEvent actionEvent) {
+    public void newGame(ActionEvent e) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
+
         eventListener.createNewGame();
+
         gamePanel.requestFocus();
         timeLine.play();
         isPause.set(false);
         isGameOver.set(false);
 
-        if (pauseButton != null) pauseButton.setText("⏸");
+        pauseButton.setText("Pause");
+
+        // 新游戏时等级恢复成 1
+        if (levelLabel != null) {
+            levelLabel.setText("1");
+        }
     }
 
-    // 暂停 / 继续 按钮 和 P 键 都会调用这个方法
-    public void pauseGame(ActionEvent actionEvent) {
+    public void pauseGame(ActionEvent e) {
+
         if (timeLine == null) return;
 
         if (isPause.get()) {
             isPause.set(false);
             timeLine.play();
-            if (pauseButton != null) {
-                pauseButton.setText("⏸");
-            }
+            pauseButton.setText("Pause");
         } else {
             isPause.set(true);
             timeLine.pause();
-            if (pauseButton != null) {
-                pauseButton.setText("▶");
-            }
+            pauseButton.setText("Resume");
         }
 
         gamePanel.requestFocus();
     }
 
-    /**
-     * 绘制“下一个方块”的预览小图。
-     * 使用 ViewData 里的 nextBrickData，在 nextBrickPanel 里用小方块画出来。
-     */
     public void refreshNextBrick(ViewData viewData) {
-        if (nextBrickPanel == null || viewData == null) {
-            return;
-        }
+
+        if (nextBrickPanel == null || viewData == null) return;
 
         nextBrickPanel.getChildren().clear();
 
         int[][] data = viewData.getNextBrickData();
-        if (data == null) {
-            return;
-        }
+        if (data == null) return;
 
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
+
                 Rectangle r = new Rectangle(PREVIEW_BRICK_SIZE, PREVIEW_BRICK_SIZE);
                 r.setFill(getFillColor(data[i][j]));
                 r.setArcWidth(5);
                 r.setArcHeight(5);
+
                 nextBrickPanel.add(r, j, i);
             }
         }
