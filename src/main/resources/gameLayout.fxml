@@ -49,6 +49,17 @@
                styleClass="numberLabel"/>
     </HBox>
 
+
+    <!-- ★ 新增：历史最高分 Best -->
+    <HBox layoutX="330" layoutY="170" spacing="6">
+        <Label text="Best:" styleClass="titleLabel"/>
+        <Label fx:id="highScoreLabel"
+               text="0"
+               styleClass="numberLabel"/>
+    </HBox>
+
+
+
     <!-- Lines 显示区域：同样右移，和 Score 对齐 -->
     <HBox layoutX="337" layoutY="210" spacing="6">
         <Label text="LINES" styleClass="titleLabel"/>

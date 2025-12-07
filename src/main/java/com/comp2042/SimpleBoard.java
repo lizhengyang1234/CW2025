@@ -1,42 +1,65 @@
-// 简化版的棋盘实现类，负责游戏逻辑的核心部分。
-// 包括：检测方块是否能移动、旋转、生成新方块、合并到背景、清除整行、更新分数等。
-// 可以理解成整个 Tetris 的“数据层 + 规则层”。
-// GameController 只是调用这里的方法，这里才是真正决定游戏行为的地方。
+// 重构后的 SimpleBoard：只负责“协调”各个组件，自己不再写大段逻辑。
+// - 背景棋盘 → BoardState
+// - 移动 / 碰撞 → MovementController
+// - 旋转       → RotationController
+// - 方块生成   → BrickGenerator / RandomBrickGenerator
+// - 分数       → Score
 //
-// Simple board implementation containing the core game logic.
-// Handles checking movement, rotation, creating new bricks,
-// merging bricks into the background, clearing full rows,
-// and updating the score. This class represents the main
-// rule/control layer of the Tetris board.
+// 这样每个类职责都很单一，以后加功能（幽灵块、墙踢、不同模式）就会轻松很多。
+
 package com.comp2042;
 
 import com.comp2042.logic.bricks.Brick;
 import com.comp2042.logic.bricks.BrickGenerator;
 import com.comp2042.logic.bricks.RandomBrickGenerator;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class SimpleBoard implements Board {
 
-    private static final int START_X = 4;   // 方块初始 X 坐标
-    private static final int START_Y = 10;  // 方块初始 Y 坐标
+    /** 新方块出生位置 */
+    private static final int START_X = 4;
+    private static final int START_Y = 10;
 
-    private final int width;
-    private final int height;
-    private final BrickGenerator brickGenerator;
+    /** 棋盘尺寸（行、列） */
+    private final int rows;
+    private final int cols;
+
+    /** 背景棋盘状态（已经落下的方块） */
+    private final BoardState boardState;
+
+    /** 负责当前方块的形状与旋转 */
     private final BrickRotator brickRotator;
-    private int[][] currentGameMatrix;
+
+    /** 方块生成器（负责随机出下一个 Brick） */
+    private final BrickGenerator brickGenerator;
+
+    /** 专门处理平移 / 碰撞的逻辑 */
+    private final MovementController movementController;
+
+    /** 专门处理旋转 / 碰撞的逻辑 */
+    private final RotationController rotationController;
+
+    /** 当前活动方块左上角位置（列 = x, 行 = y） */
     private Point currentOffset;
+
+    /** 分数模型 */
     private final Score score;
 
-    public SimpleBoard(int width, int height) {
-        this.width = width;
-        this.height = height;
-        currentGameMatrix = new int[width][height];
-        brickGenerator = new RandomBrickGenerator();
-        brickRotator = new BrickRotator();
-        score = new Score();
+    public SimpleBoard(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+
+        this.boardState = new BoardState(rows, cols);
+        this.brickRotator = new BrickRotator();
+        this.brickGenerator = new RandomBrickGenerator();
+        this.movementController = new MovementController();
+        this.rotationController = new RotationController();
+
+        this.score = new Score();
     }
+
+    // ============= Board 接口实现：移动相关 =============
 
     @Override
     public boolean moveBrickDown() {
@@ -54,89 +77,87 @@ public class SimpleBoard implements Board {
     }
 
     /**
-     * 尝试按照给定方向移动当前方块（dx, dy）。
-     * 返回 true 表示移动成功，false 表示发生碰撞或越界。
+     * 通用移动逻辑：尝试把当前方块平移 (dx, dy)。
+     *
+     * @return true = 移动成功；false = 会碰撞，位置保持不变。
      */
     private boolean tryMoveBrick(int dx, int dy) {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
-        Point newOffset = new Point(currentOffset);
-        newOffset.translate(dx, dy);
-        boolean conflict = MatrixOperations.intersect(
-                currentMatrix,
-                brickRotator.getCurrentShape(),
-                (int) newOffset.getX(),
-                (int) newOffset.getY()
+        int[][] shape = brickRotator.getCurrentShape();
+
+        Point newOffset = movementController.tryTranslate(
+                boardState,
+                shape,
+                currentOffset,
+                dx,
+                dy
         );
-        if (conflict) {
+
+        if (newOffset == null) {
+            // 碰撞或越界
             return false;
-        } else {
-            currentOffset = newOffset;
-            return true;
         }
+
+        currentOffset = newOffset;
+        return true;
     }
+
+    // ============= Board 接口实现：旋转相关 =============
 
     @Override
     public boolean rotateLeftBrick() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
-        NextShapeInfo nextShape = brickRotator.getNextShape();
-        boolean conflict = MatrixOperations.intersect(
-                currentMatrix,
-                nextShape.getShape(),
-                (int) currentOffset.getX(),
-                (int) currentOffset.getY()
-        );
-        if (conflict) {
-            return false;
-        } else {
-            brickRotator.setCurrentShape(nextShape.getPosition());
-            return true;
-        }
+        return rotationController.tryRotateLeft(boardState, brickRotator, currentOffset);
     }
+
+    // ============= Board 接口实现：新方块 / 棋盘数据 =============
 
     @Override
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        // 起始位置
+
+        // 出生位置
         currentOffset = new Point(START_X, START_Y);
-        return MatrixOperations.intersect(
-                currentGameMatrix,
+
+        // 一出生就冲突 → 游戏结束信号（返回 true）
+        boolean conflict = movementController.hasCollision(
+                boardState.getMatrix(),
                 brickRotator.getCurrentShape(),
-                (int) currentOffset.getX(),
-                (int) currentOffset.getY()
+                currentOffset
         );
+        return conflict;
     }
 
     @Override
     public int[][] getBoardMatrix() {
-        return currentGameMatrix;
+        return boardState.getMatrix();
     }
 
     @Override
     public ViewData getViewData() {
         return new ViewData(
                 brickRotator.getCurrentShape(),
-                (int) currentOffset.getX(),
-                (int) currentOffset.getY(),
+                currentOffset.x,
+                currentOffset.y,
+                // next brick 的第一个旋转形状，保持原来行为
                 brickGenerator.getNextBrick().getShapeMatrix().get(0)
         );
     }
 
+    // ============= Board 接口实现：合并 / 消行 / 分数 / 新游戏 =============
+
     @Override
     public void mergeBrickToBackground() {
-        currentGameMatrix = MatrixOperations.merge(
-                currentGameMatrix,
+        boardState.mergeBrick(
                 brickRotator.getCurrentShape(),
-                (int) currentOffset.getX(),
-                (int) currentOffset.getY()
+                currentOffset.x,
+                currentOffset.y
         );
     }
 
     @Override
     public ClearRow clearRows() {
-        ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix);
-        currentGameMatrix = clearRow.getNewMatrix();
-        return clearRow;
+        // 清行本身不加分，加分由 GameController 根据 ClearRow 决定
+        return boardState.clearFullRows();
     }
 
     @Override
@@ -146,7 +167,7 @@ public class SimpleBoard implements Board {
 
     @Override
     public void newGame() {
-        currentGameMatrix = new int[width][height];
+        boardState.reset();
         score.reset();
         createNewBrick();
     }

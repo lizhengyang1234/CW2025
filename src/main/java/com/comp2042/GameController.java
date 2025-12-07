@@ -1,27 +1,31 @@
 package com.comp2042;
 
 // 游戏控制器：负责整个游戏流程的核心逻辑。
-// 包含处理输入（左右/旋转/下落/硬降）、触发方块下落、生成新方块、清行、更新分数等。
-// 也会把更新后的棋盘和数据同步给 GUI。
 
 public class GameController implements InputEventListener {
 
-    // 棋盘：25 行（前 2 行隐藏）、10 列
     private Board board = new SimpleBoard(25, 10);
 
     private final GuiController viewGuiController;
 
     public GameController(GuiController c) {
-        viewGuiController = c;
+        this.viewGuiController = c;
+
+        // ★ 先尝试加载历史最高分
+        board.getScore().loadHighScore();
+
         board.createNewBrick();
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
 
-        // 绑定分数到右侧 SCORE
+        // 当前分数
         viewGuiController.bindScore(board.getScore().scoreProperty());
-        // 新增：绑定总消行数到右侧 LINES
+        // 总行数（你已经用来控制加速了）
         viewGuiController.bindLines(board.getScore().linesProperty());
+        // ★ 新增：历史最高分绑定到右侧标签
+        viewGuiController.bindHighScore(board.getScore().highScoreProperty());
     }
+
 
     /**
      * 处理“向下”事件：
@@ -61,6 +65,8 @@ public class GameController implements InputEventListener {
 
             // 生成新方块，如果一开始就冲突，则游戏结束
             if (board.createNewBrick()) {
+                // ★ 保存历史最高分
+                board.getScore().saveHighScore();
                 viewGuiController.gameOver();
             }
 
