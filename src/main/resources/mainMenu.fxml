@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+
+<!-- 主菜单：全屏 AnchorPane + 中央菜单 VBox -->
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.comp2042.MainMenuController"
+            prefWidth="900" prefHeight="650"
+            style="-fx-background-color: linear-gradient(to bottom, #0a1a2f, #0e274a);">
+
+    <!-- 居中容器：控制内容位置 -->
+    <VBox layoutX="275" layoutY="130"
+          spacing="30"
+          alignment="CENTER"
+          prefWidth="350">
+
+        <!-- 游戏主标题 -->
+        <Label text="TETRIS"
+               style="-fx-text-fill: #66ccff;
+                      -fx-font-size: 56px;
+                      -fx-font-weight: bold;
+                      -fx-font-family: 'Arial';
+                      -fx-effect: dropshadow(gaussian, #0099ff, 16, 0.5, 0, 0);" />
+
+        <!-- Start Game 按钮 -->
+        <Button text="Start Game"
+                onAction="#onStartGame"
+                prefWidth="220" prefHeight="50"
+                styleClass="menuButton"/>
+
+        <!-- Exit 按钮 -->
+        <Button text="Exit"
+                onAction="#onExit"
+                prefWidth="220" prefHeight="50"
+                styleClass="menuButton"/>
+
+    </VBox>
+
+    <!-- 加载你的样式 -->
+    <stylesheets>
+        <URL value="@window_style.css"/>
+    </stylesheets>
+
+</AnchorPane>

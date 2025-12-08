@@ -14,18 +14,20 @@ public class GameController implements InputEventListener {
         // ★ 先尝试加载历史最高分
         board.getScore().loadHighScore();
 
+        // 创建第一个方块
         board.createNewBrick();
+
+        // 建立和 GUI 的连接
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
 
         // 当前分数
         viewGuiController.bindScore(board.getScore().scoreProperty());
-        // 总行数（你已经用来控制加速了）
+        // 总行数（用于显示 + 控制加速）
         viewGuiController.bindLines(board.getScore().linesProperty());
-        // ★ 新增：历史最高分绑定到右侧标签
+        // ★ 历史最高分
         viewGuiController.bindHighScore(board.getScore().highScoreProperty());
     }
-
 
     /**
      * 处理“向下”事件：
@@ -65,7 +67,7 @@ public class GameController implements InputEventListener {
 
             // 生成新方块，如果一开始就冲突，则游戏结束
             if (board.createNewBrick()) {
-                // ★ 保存历史最高分
+                // ★ 保存历史最高分（硬降导致 game over）
                 board.getScore().saveHighScore();
                 viewGuiController.gameOver();
             }
@@ -93,6 +95,8 @@ public class GameController implements InputEventListener {
 
             // 生成新方块，若一开始就冲突，则游戏结束
             if (board.createNewBrick()) {
+                // ★ 普通落到底导致的 game over 也要保存最高分
+                board.getScore().saveHighScore();
                 viewGuiController.gameOver();
             }
 
@@ -132,5 +136,6 @@ public class GameController implements InputEventListener {
     public void createNewGame() {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
+        // ★ 注意：newGame 里不要重置 highScore，这样高分能跨局保存
     }
 }

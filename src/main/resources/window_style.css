@@ -143,3 +143,40 @@
     -fx-text-fill: white;
     -fx-font-family: "Arial";
 }
+/* =============================== */
+/*       主菜单按钮（赛博风）      */
+/* =============================== */
+
+.menuButton {
+    -fx-padding: 10 24;
+    -fx-font-size: 20px;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+
+    -fx-background-color: rgba(20, 40, 80, 0.6); /* 半透明科技背景 */
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-border-color: #5ac8ff;
+    -fx-border-width: 2;
+
+    /* 轻度蓝色发光 */
+    -fx-effect: dropshadow(gaussian, rgba(0,170,255,0.7), 12, 0.4, 0, 0);
+    -fx-text-fill: #cceeff;
+
+    -fx-cursor: hand;
+}
+
+/* 悬停：变亮、外发光更强 */
+.menuButton:hover {
+    -fx-background-color: rgba(40, 80, 140, 0.8);
+    -fx-border-color: #a6e4ff;
+    -fx-effect: dropshadow(gaussian, rgba(0,200,255,0.9), 18, 0.5, 0, 0);
+    -fx-text-fill: white;
+}
+
+/* 按下按钮：稍稍下压 */
+.menuButton:pressed {
+    -fx-background-color: rgba(25, 60, 110, 0.9);
+    -fx-translate-y: 2;
+}
