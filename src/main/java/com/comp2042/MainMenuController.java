@@ -1,52 +1,50 @@
 package com.comp2042;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.io.IOException;
+import javafx.event.ActionEvent;
 
-/**
- * 主菜单控制器：
- * - 点击 Start Game → 切换到游戏界面 gameLayout.fxml 并创建 GameController
- * - 点击 Exit       → 退出程序
- */
 public class MainMenuController {
 
     @FXML
-    private void onStartGame(ActionEvent event) {
-        try {
-            // 1. 加载游戏界面 FXML
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getClassLoader().getResource("gameLayout.fxml"));
-            Parent gameRoot = loader.load();
+    private void onStartGame(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getClassLoader().getResource("gameLayout.fxml"));
+        Parent root = loader.load();
+        GuiController gui = loader.getController();
 
-            // 2. 拿到 GUI 控制器
-            GuiController guiController = loader.getController();
+        // 普通模式：bombMode = false
+        new GameController(gui, false);
 
-            // 3. 创建 GameController，把 guiController 传进去
-            new GameController(guiController);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
 
-            // 4. 用当前窗口切换 Scene 到游戏界面
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene().getWindow();
-            stage.setScene(new Scene(gameRoot));
-            stage.setResizable(false);
-            stage.centerOnScreen();
+    @FXML
+    private void onStartBombMode(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getClassLoader().getResource("gameLayout.fxml"));
+        Parent root = loader.load();
+        GuiController gui = loader.getController();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // 炸弹模式：bombMode = true
+        new GameController(gui, true);
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     @FXML
     private void onExit(ActionEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene().getWindow();
-        stage.close();
+        Platform.exit();
     }
 }

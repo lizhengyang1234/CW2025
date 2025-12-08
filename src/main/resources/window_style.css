@@ -49,20 +49,22 @@
     -fx-text-alignment: left;
 }
 
-/* 右侧信息标题（“Score”, “Lines”） */
+/* 右侧信息标题（SCORE / BEST / LINES / LEVEL） */
 .titleLabel {
-    -fx-text-fill: #cce6ff;                /* 淡蓝白 */
-    -fx-font-size: 14px;
+    -fx-text-fill: #f2f6ff;          /* 淡一点的白蓝 */
+    -fx-font-size: 30px;             /* 标题小一点 */
     -fx-font-weight: bold;
     -fx-font-family: "Arial";
 }
 
-/* 右侧数字（分数 / 行数） */
+/* 右侧数字（分数 / 行数 / 等级） */
 .numberLabel {
-    -fx-text-fill: #4dd2ff;                /* 亮科技蓝 */
-    -fx-font-size: 22px;
+    -fx-text-fill: #4dd2ff;          /* 亮蓝色数字 */
+    -fx-font-size: 30px;             /* 数字明显大一点 */
     -fx-font-family: "Let's go Digital", "Arial";
-    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.7), 8, 0.5, 0, 0);
+    -fx-effect: dropshadow(gaussian,
+                           rgba(0, 200, 255, 0.7),
+                           8, 0.5, 0, 0);
 }
 
 /* 原来的分数样式（如果还有老地方用，就先保留） */
@@ -147,36 +149,70 @@
 /*       主菜单按钮（赛博风）      */
 /* =============================== */
 
+/* 普通模式 & Exit 按钮 */
 .menuButton {
     -fx-padding: 10 24;
     -fx-font-size: 20px;
     -fx-font-family: "Arial";
     -fx-font-weight: bold;
 
-    -fx-background-color: rgba(20, 40, 80, 0.6); /* 半透明科技背景 */
+    -fx-background-color: rgba(40, 120, 200, 0.55);
     -fx-background-radius: 12;
     -fx-border-radius: 12;
 
-    -fx-border-color: #5ac8ff;
+    -fx-border-color: #66ccff;
     -fx-border-width: 2;
 
-    /* 轻度蓝色发光 */
-    -fx-effect: dropshadow(gaussian, rgba(0,170,255,0.7), 12, 0.4, 0, 0);
     -fx-text-fill: #cceeff;
-
     -fx-cursor: hand;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,170,255,0.7), 12, 0.4, 0, 0);
 }
 
-/* 悬停：变亮、外发光更强 */
 .menuButton:hover {
-    -fx-background-color: rgba(40, 80, 140, 0.8);
+    -fx-background-color: rgba(60, 160, 255, 0.8);
     -fx-border-color: #a6e4ff;
-    -fx-effect: dropshadow(gaussian, rgba(0,200,255,0.9), 18, 0.5, 0, 0);
     -fx-text-fill: white;
 }
 
-/* 按下按钮：稍稍下压 */
 .menuButton:pressed {
     -fx-background-color: rgba(25, 60, 110, 0.9);
     -fx-translate-y: 2;
+}
+
+/* =============================== */
+/*         炸弹模式按钮样式        */
+/* =============================== */
+
+.menuButton-warning {
+    -fx-padding: 10 24;
+    -fx-font-size: 20px;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+
+    -fx-background-color: linear-gradient(to bottom, #ff4b4b, #b51f1f);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-border-color: #ffd6d6;
+    -fx-border-width: 2;
+
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+
+    -fx-effect: dropshadow(gaussian, rgba(255,70,70,0.7), 14, 0.5, 0, 0);
+}
+
+.menuButton-warning:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff6969, #c62828);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.menuButton-warning:pressed {
+    -fx-background-color: #7f1515;
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-translate-y: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.4, 0, 2);
 }

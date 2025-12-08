@@ -1,117 +1,131 @@
 package com.comp2042;
 
-// 游戏控制器：负责整个游戏流程的核心逻辑。
+import java.awt.Point;
+import java.util.List;
 
+// GameController: handles all core game logic and talks to the GUI.
 public class GameController implements InputEventListener {
 
-    private Board board = new SimpleBoard(25, 10);
-
+    private final Board board;
     private final GuiController viewGuiController;
 
+    // Default constructor: normal mode (no bombs)
     public GameController(GuiController c) {
+        this(c, false);
+    }
+
+    // Constructor with bomb mode support
+    public GameController(GuiController c, boolean bombMode) {
         this.viewGuiController = c;
 
-        // ★ 先尝试加载历史最高分
+        // 25 rows × 10 columns, third argument: enable bomb mode or not
+        this.board = new SimpleBoard(25, 10, bombMode);
+
+        // Load previous high score
         board.getScore().loadHighScore();
 
-        // 创建第一个方块
+        // Create the first falling brick
         board.createNewBrick();
 
-        // 建立和 GUI 的连接
+        // Connect to GUI
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
 
-        // 当前分数
+        // Bind HUD labels
         viewGuiController.bindScore(board.getScore().scoreProperty());
-        // 总行数（用于显示 + 控制加速）
         viewGuiController.bindLines(board.getScore().linesProperty());
-        // ★ 历史最高分
         viewGuiController.bindHighScore(board.getScore().highScoreProperty());
     }
 
     /**
-     * 处理“向下”事件：
-     * - eventType == DOWN：原来的单步下落逻辑
-     * - eventType == HARD_DROP：空格键，一路落到底
+     * Handles DOWN and HARD_DROP events.
      */
     @Override
     public DownData onDownEvent(MoveEvent event) {
 
         ClearRow clearRow = null;
 
-        // ======= 硬降逻辑（空格键） =======
+        // ===== HARD DROP (space key) =====
         if (event.getEventType() == EventType.HARD_DROP) {
             int steps = 0;
 
-            // 一直往下走，直到不能再走
+            // Move down until we hit something
             while (board.moveBrickDown()) {
                 steps++;
             }
 
-            // 落到底后，合并到背景
-            board.mergeBrickToBackground();
+            // Brick has landed → handle merge, clear rows, new brick, etc.
+            clearRow = handleBrickLanded();
 
-            // 检查并清行
-            clearRow = board.clearRows();
-            if (clearRow.getLinesRemoved() > 0) {
-                Score score = board.getScore();
-                score.add(clearRow.getScoreBonus());
-                // 把这次消掉的行数加到总行数里
-                score.addLines(clearRow.getLinesRemoved());
-            }
-
-            // 为硬降的每一格移动加分（例如 1 分/格）
+            // Extra score for hard drop distance
             if (steps > 0) {
                 board.getScore().add(steps);
             }
 
-            // 生成新方块，如果一开始就冲突，则游戏结束
-            if (board.createNewBrick()) {
-                // ★ 保存历史最高分（硬降导致 game over）
-                board.getScore().saveHighScore();
-                viewGuiController.gameOver();
-            }
-
-            // 刷新背景棋盘
-            viewGuiController.refreshGameBackground(board.getBoardMatrix());
-
             return new DownData(clearRow, board.getViewData());
         }
 
-        // ======= 普通单步下落（原来的逻辑） =======
+        // ===== Normal one-step DOWN =====
         boolean canMove = board.moveBrickDown();
         if (!canMove) {
-            // 不能再往下：合并到背景
-            board.mergeBrickToBackground();
-
-            // 检查并清行，加分
-            clearRow = board.clearRows();
-            if (clearRow.getLinesRemoved() > 0) {
-                Score score = board.getScore();
-                score.add(clearRow.getScoreBonus());
-                // 普通下落时也要累计总消行数
-                score.addLines(clearRow.getLinesRemoved());
-            }
-
-            // 生成新方块，若一开始就冲突，则游戏结束
-            if (board.createNewBrick()) {
-                // ★ 普通落到底导致的 game over 也要保存最高分
-                board.getScore().saveHighScore();
-                viewGuiController.gameOver();
-            }
-
-            // 刷新背景
-            viewGuiController.refreshGameBackground(board.getBoardMatrix());
-
+            // Brick landed, handle it
+            clearRow = handleBrickLanded();
         } else {
-            // 成功向下移动一格：
-            // 只有玩家手动按键（USER）才加 1 分，自动下落（THREAD）不加分
+            // Small score for manual soft drop
             if (event.getEventSource() == EventSource.USER) {
                 board.getScore().add(1);
             }
         }
 
         return new DownData(clearRow, board.getViewData());
+    }
+
+    /**
+     * Called whenever the current brick can no longer move down.
+     *
+     * Steps:
+     *  1) Merge brick into the background (may also trigger bomb explosion)
+     *  2) Clear full rows and update score / lines
+     *  3) If needed, play bomb explosion animation
+     *  4) Spawn a new brick; if that fails, the game is over
+     *  5) Refresh the background board in the GUI
+     *
+     * Returns info about cleared rows (can be null or 0 lines).
+     */
+    private ClearRow handleBrickLanded() {
+
+        // Merge brick into the background.
+        // In bomb mode this may also explode and update the matrix.
+        board.mergeBrickToBackground();
+
+        // Clear full rows and update score
+        ClearRow clearRow = board.clearRows();
+        if (clearRow.getLinesRemoved() > 0) {
+            Score score = board.getScore();
+            score.add(clearRow.getScoreBonus());
+            score.addLines(clearRow.getLinesRemoved());
+        }
+
+        // ➤ If we are in bomb mode and there was an explosion,
+        //    SimpleBoard stored the affected cells in lastExplosionCells.
+        if (board instanceof SimpleBoard) {
+            List<Point> explosionCells = ((SimpleBoard) board).getLastExplosionCells();
+            if (explosionCells != null && !explosionCells.isEmpty()) {
+                // Ask GUI to play the explosion animation (black + shake)
+                viewGuiController.playExplosionAnimation(explosionCells);
+            }
+        }
+
+        // Try to create a new brick; if it collides immediately, game over
+        if (board.createNewBrick()) {
+            board.getScore().saveHighScore();
+            viewGuiController.gameOver();
+        }
+
+        // Finally refresh the background grid
+        viewGuiController.refreshGameBackground(board.getBoardMatrix());
+
+        return clearRow;
     }
 
     @Override
@@ -136,6 +150,6 @@ public class GameController implements InputEventListener {
     public void createNewGame() {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
-        // ★ 注意：newGame 里不要重置 highScore，这样高分能跨局保存
+        // Do NOT reset high score here
     }
 }

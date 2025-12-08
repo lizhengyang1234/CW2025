@@ -1,18 +1,24 @@
 package com.comp2042;
 
+import java.awt.Point;
+import java.util.List;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 /**
- * 负责纯“画面相关”的工作：
- * - 画背景棋盘
- * - 画当前 4x4 方块
- * - 画幽灵影子块
- * - 画右侧 Next 预览
+ * Only handles drawing:
+ * - background board
+ * - current 4x4 brick
+ * - ghost piece
+ * - "Next" preview
  *
- * 不处理输入、不处理分数，也不碰 Timeline。
+ * No input / score / timeline here.
  */
 public class BoardView {
 
@@ -29,11 +35,11 @@ public class BoardView {
     private final GhostRenderer ghostRenderer;
     private final NextBrickRenderer nextBrickRenderer;
 
-    // 背景棋盘的格子（对应 boardMatrix 的每一格）
+    // background cells (same size as board)
     private Rectangle[][] displayMatrix;
-    // 当前下落方块 4x4 的格子
+    // current 4x4 falling brick cells
     private Rectangle[][] rectangles;
-    // 当前背景的数值状态，用于幽灵影子计算
+    // background data (for ghost)
     private int[][] boardState;
 
     public BoardView(GridPane gamePanel,
@@ -59,35 +65,34 @@ public class BoardView {
         this.nextBrickRenderer = new NextBrickRenderer(previewBrickSize, brickColors);
     }
 
+    /* ================= init game view ================= */
+
     /**
-     * 初次启动游戏时调用：
-     *  - 创建背景网格 Rectangle
-     *  - 创建当前 4x4 方块的 Rectangle
-     *  - 设置初始位置
-     *  - 画一次 next 预览 + 幽灵影子
+     * Called once when game starts.
+     * Creates background cells and the first 4x4 brick.
      */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
 
-        // 保存背景数据给幽灵影子用
+        // copy board for ghost
         boardState = MatrixOperations.copy(boardMatrix);
-
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
 
-        // 背景格子：跳过隐藏行
+        // background cells (skip hidden rows)
         for (int i = hiddenRows; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
 
                 Rectangle rect = new Rectangle(brickSize, brickSize);
                 rect.setFill(Color.TRANSPARENT);
-
                 displayMatrix[i][j] = rect;
+
+                // row index in UI is (i - hiddenRows)
                 gamePanel.add(rect, j, i - hiddenRows);
             }
         }
 
+        // 4x4 brick on top
         brickPanel.toFront();
 
-        // 当前 4x4 方块
         int[][] brickData = brick.getBrickData();
         rectangles = new Rectangle[brickData.length][brickData[0].length];
 
@@ -101,40 +106,35 @@ public class BoardView {
             }
         }
 
-        // 初始位置
         updateBrickPanelPosition(brick);
-
-        // Next 预览
         renderNextBrick(brick);
-
-        // 幽灵影子
         ghostRenderer.drawGhost(brick, boardState, displayMatrix);
     }
 
+    /* ================= refresh current brick ================= */
+
     /**
-     * 刷新当前方块 + 幽灵影子。
-     * GuiController 已经保证未暂停时才调用。
+     * Redraw current falling brick + ghost piece.
+     * GuiController already checks pause.
      */
     public void refreshBrick(ViewData brick) {
 
         brickPanel.toFront();
 
-        // 先用当前 boardState 重画背景，清掉旧的幽灵影子
-        if (boardState != null && displayMatrix != null) {
-            for (int i = hiddenRows; i < boardState.length; i++) {
-                for (int j = 0; j < boardState[i].length; j++) {
-                    setRectangleData(boardState[i][j], displayMatrix[i][j]);
-                }
+        // redraw background from boardState (clear old ghost)
+        for (int i = hiddenRows; i < boardState.length; i++) {
+            for (int j = 0; j < boardState[i].length; j++) {
+                setRectangleData(boardState[i][j], displayMatrix[i][j]);
             }
         }
 
-        // 重画幽灵影子
+        // then draw ghost again
         ghostRenderer.drawGhost(brick, boardState, displayMatrix);
 
-        // 更新当前方块位置
+        // update 4x4 brick position
         updateBrickPanelPosition(brick);
 
-        // 更新 4x4 方块内的颜色
+        // update colors inside 4x4 brick
         int[][] data = brick.getBrickData();
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
@@ -143,17 +143,14 @@ public class BoardView {
         }
     }
 
+    /* ================= refresh background ================= */
+
     /**
-     * 刷新背景棋盘（消行、新方块合并之后等）。
-     * 同时更新 boardState，给幽灵影子用。
+     * Redraw background (after merge / clear rows).
+     * Also updates boardState used by ghost.
      */
     public void refreshBackground(int[][] board) {
-
         boardState = MatrixOperations.copy(board);
-
-        if (displayMatrix == null) {
-            return;
-        }
 
         for (int i = hiddenRows; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -162,21 +159,20 @@ public class BoardView {
         }
     }
 
-    /**
-     * 右侧 Next 预览。
-     */
+    /* ================= Next preview ================= */
+
     public void renderNextBrick(ViewData viewData) {
         nextBrickRenderer.renderNextBrick(viewData, nextBrickPanel);
     }
 
-    /* =================== 内部小工具方法 =================== */
+    /* ================= helpers ================= */
 
     private void updateBrickPanelPosition(ViewData brick) {
-        double cellWidth = brickSize + brickPanel.getHgap();
-        double cellHeight = brickSize + brickPanel.getVgap();
+        double cw = brickSize + brickPanel.getHgap();
+        double ch = brickSize + brickPanel.getVgap();
 
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * cellWidth);
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - hiddenRows) * cellHeight);
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * cw);
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - hiddenRows) * ch);
     }
 
     private void setRectangleData(int color, Rectangle r) {
@@ -190,5 +186,128 @@ public class BoardView {
             return brickColors[id];
         }
         return Color.WHITE;
+    }
+
+    /* ================= explosion animation ================= */
+
+    /**
+     * Simple explosion animation:
+     * - explosion cells turn black
+     * - board shakes a bit
+     * - black cells fade out
+     */
+    public void playExplosionAnimation(List<Point> cells) {
+
+        if (cells == null || cells.isEmpty() || displayMatrix == null) return;
+
+        final double shakeAmount = 4;
+
+        // remember original position
+        final double originalX = gamePanel.getTranslateX();
+        final double originalY = gamePanel.getTranslateY();
+
+        Timeline timeline = new Timeline(
+
+                // 1) paint explosion cells black + small shake
+                new KeyFrame(Duration.ZERO, e -> {
+
+                    for (Point p : cells) {
+                        int x = p.x;
+                        int y = p.y;
+
+                        // skip hidden rows
+                        if (y < hiddenRows) continue;
+
+                        if (y >= 0 && y < displayMatrix.length &&
+                                x >= 0 && x < displayMatrix[0].length) {
+
+                            Rectangle r = displayMatrix[y][x];
+                            if (r != null) {
+                                r.setFill(Color.BLACK);
+                                r.setOpacity(1.0);
+                            }
+                        }
+                    }
+
+                    // shake background board only
+                    gamePanel.setTranslateX(originalX - shakeAmount);
+                    gamePanel.setTranslateY(originalY);
+                }),
+
+                // 2) move to the other side
+                new KeyFrame(Duration.millis(60), e -> {
+                    gamePanel.setTranslateX(originalX + shakeAmount);
+                }),
+
+                // 3) back to center (stop shaking)
+                new KeyFrame(Duration.millis(120), e -> {
+                    gamePanel.setTranslateX(originalX);
+                    gamePanel.setTranslateY(originalY);
+                }),
+
+                // 4) start fade out
+                new KeyFrame(Duration.millis(200), e -> {
+                    for (Point p : cells) {
+                        int x = p.x;
+                        int y = p.y;
+
+                        if (y < hiddenRows) continue;
+
+                        if (y >= 0 && y < displayMatrix.length &&
+                                x >= 0 && x < displayMatrix[0].length) {
+
+                            Rectangle r = displayMatrix[y][x];
+                            if (r != null) {
+                                r.setOpacity(0.5);
+                            }
+                        }
+                    }
+                }),
+
+                // 5) fully fade out
+                new KeyFrame(Duration.millis(350), e -> {
+                    for (Point p : cells) {
+                        int x = p.x;
+                        int y = p.y;
+
+                        if (y < hiddenRows) continue;
+
+                        if (y >= 0 && y < displayMatrix.length &&
+                                x >= 0 && x < displayMatrix[0].length) {
+
+                            Rectangle r = displayMatrix[y][x];
+                            if (r != null) {
+                                r.setOpacity(0.0);
+                            }
+                        }
+                    }
+                }),
+
+                // 6) cleanup: reset cells and board position
+                new KeyFrame(Duration.millis(500), e -> {
+                    for (Point p : cells) {
+                        int x = p.x;
+                        int y = p.y;
+
+                        if (y < hiddenRows) continue;
+
+                        if (y >= 0 && y < displayMatrix.length &&
+                                x >= 0 && x < displayMatrix[0].length) {
+
+                            Rectangle r = displayMatrix[y][x];
+                            if (r != null) {
+                                r.setOpacity(1.0);
+                                r.setFill(Color.TRANSPARENT);
+                            }
+                        }
+                    }
+
+                    gamePanel.setTranslateX(originalX);
+                    gamePanel.setTranslateY(originalY);
+                })
+        );
+
+        timeline.setCycleCount(1);
+        timeline.play();
     }
 }

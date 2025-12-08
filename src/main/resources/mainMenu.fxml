@@ -6,41 +6,48 @@
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
 
-<!-- 主菜单：全屏 AnchorPane + 中央菜单 VBox -->
+<!-- 主菜单：更美观、更统一的布局 -->
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.comp2042.MainMenuController"
             prefWidth="900" prefHeight="650"
-            style="-fx-background-color: linear-gradient(to bottom, #0a1a2f, #0e274a);">
+            style="-fx-background-color: linear-gradient(to bottom, #071424, #0d1f36);">
 
-    <!-- 居中容器：控制内容位置 -->
-    <VBox layoutX="275" layoutY="130"
-          spacing="30"
-          alignment="CENTER"
+    <!-- 居中菜单 -->
+    <VBox alignment="CENTER"
+          spacing="28"
+          layoutX="275"
+          layoutY="130"
           prefWidth="350">
 
-        <!-- 游戏主标题 -->
+        <!-- 主标题 -->
         <Label text="TETRIS"
-               style="-fx-text-fill: #66ccff;
-                      -fx-font-size: 56px;
-                      -fx-font-weight: bold;
+               style="-fx-text-fill: #66d9ff;
+                      -fx-font-size: 60px;
                       -fx-font-family: 'Arial';
-                      -fx-effect: dropshadow(gaussian, #0099ff, 16, 0.5, 0, 0);" />
+                      -fx-font-weight: bold;
+                      -fx-effect: dropshadow(gaussian, #00aaff, 24, 0.6, 0, 0);" />
 
-        <!-- Start Game 按钮 -->
+        <!-- 普通模式 -->
         <Button text="Start Game"
                 onAction="#onStartGame"
-                prefWidth="220" prefHeight="50"
+                prefWidth="230" prefHeight="55"
                 styleClass="menuButton"/>
 
-        <!-- Exit 按钮 -->
+        <!-- 炸弹模式 -->
+        <Button text="Bomb Mode"
+                onAction="#onStartBombMode"
+                prefWidth="230" prefHeight="55"
+                styleClass="menuButton-warning"/>
+
+        <!-- 退出 -->
         <Button text="Exit"
                 onAction="#onExit"
-                prefWidth="220" prefHeight="50"
+                prefWidth="230" prefHeight="55"
                 styleClass="menuButton"/>
 
     </VBox>
 
-    <!-- 加载你的样式 -->
+    <!-- CSS -->
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>

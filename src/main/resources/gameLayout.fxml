@@ -25,61 +25,68 @@
 
     <!-- ===== 右侧控制区 ===== -->
 
-    <!-- 方块贴着边框的“正方形”按钮 -->
-    <!-- 让它们紧挨着棋盘右边缘，大概 X=332，正好靠边 -->
-    <!-- Pause 按钮：文字形式 -->
+    <!-- Pause 按钮 -->
     <Button fx:id="pauseButton"
             text="Pause"
             layoutX="335" layoutY="20"
             onAction="#pauseGame"
             styleClass="sideButton"/>
 
-    <!-- New Game 按钮：文字形式 -->
+    <!-- New Game 按钮 -->
     <Button fx:id="newGameButton"
             text="Restart"
             layoutX="335" layoutY="75"
             onAction="#newGame"
             styleClass="sideButton"/>
 
-    <!-- Score 显示区域：整体右移一点，不贴边框 -->
-    <HBox layoutX="337" layoutY="150" spacing="6">
-        <Label text="SCORE" styleClass="titleLabel"/>
-        <Label fx:id="scoreLabel"
-               text="0"
-               styleClass="numberLabel"/>
-    </HBox>
+    <!-- ★ 返回主菜单按钮 -->
+    <Button fx:id="menuButton"
+            text="Menu"
+            layoutX="335" layoutY="130"
+            onAction="#onReturnToMenu"
+            styleClass="sideButton"/>
 
+    <!-- 右侧 HUD：SCORE / BEST / LINES / LEVEL 一整列 -->
+    <VBox layoutX="360" layoutY="180" spacing="10">
+        <!-- SCORE -->
+        <HBox spacing="6">
+            <Label text="SCORE" styleClass="titleLabel"/>
+            <Label fx:id="scoreLabel"
+                   text="0"
+                   styleClass="numberLabel"/>
+        </HBox>
 
-    <!-- ★ 新增：历史最高分 Best -->
-    <HBox layoutX="330" layoutY="170" spacing="6">
-        <Label text="Best:" styleClass="titleLabel"/>
-        <Label fx:id="highScoreLabel"
-               text="0"
-               styleClass="numberLabel"/>
-    </HBox>
+        <!-- BEST -->
+        <HBox spacing="6">
+            <Label text="BEST" styleClass="titleLabel"/>
+            <Label fx:id="highScoreLabel"
+                   text="0"
+                   styleClass="numberLabel"/>
+        </HBox>
 
+        <!-- LINES -->
+        <HBox spacing="6">
+            <Label text="LINES" styleClass="titleLabel"/>
+            <Label fx:id="linesLabel"
+                   text="0"
+                   styleClass="numberLabel"/>
+        </HBox>
 
+        <!-- LEVEL -->
+        <HBox spacing="6">
+            <Label text="LEVEL" styleClass="titleLabel"/>
+            <Label fx:id="levelLabel"
+                   text="1"
+                   styleClass="numberLabel"/>
+        </HBox>
+    </VBox>
 
-    <!-- Lines 显示区域：同样右移，和 Score 对齐 -->
-    <HBox layoutX="337" layoutY="210" spacing="6">
-        <Label text="LINES" styleClass="titleLabel"/>
-        <Label fx:id="linesLabel"
-               text="0"
-               styleClass="numberLabel"/>
-    </HBox>
-
-    <!-- 下一个方块预览区域（4x4 小网格），也离边框一点 -->
+    <!-- 下一个方块预览区域（4x4 小网格） -->
     <GridPane fx:id="nextBrickPanel"
-              layoutX="338" layoutY="248"
+              layoutX="365" layoutY="360"
               prefWidth="70" prefHeight="70"
               hgap="1" vgap="1"/>
-    <!-- ⭐ LEVEL 标题 + 数字 -->
-    <HBox layoutX="338" layoutY="320" spacing="6">
-        <Label text="Level:" styleClass="titleLabel"/>
-        <Label fx:id="levelLabel"
-               text="1"
-               styleClass="numberLabel"/>
-    </HBox>
+
     <!-- 加分提示 & GAME OVER 面板所在图层 -->
     <Group fx:id="groupNotification"
            layoutX="14" layoutY="203">

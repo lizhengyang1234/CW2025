@@ -6,22 +6,28 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // 加载主菜单
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getClassLoader().getResource("mainMenu.fxml"));
-        Parent root = loader.load();
+
+        // 正确加载主菜单 FXML，确保路径来自 src/main/resources
+        URL fxml = getClass().getClassLoader().getResource("mainMenu.fxml");
+        if (fxml == null) {
+            throw new IllegalStateException("❌ mainMenu.fxml not found in src/main/resources/");
+        }
+
+        Parent root = FXMLLoader.load(fxml);
 
         primaryStage.setTitle("Tetris");
 
-        // ★ 设置主菜单窗口大小：900×650（更宽、更现代）
+        // 主菜单窗口大小：900 × 650
         Scene scene = new Scene(root, 900, 650);
         primaryStage.setScene(scene);
 
-        // ★ 防止被缩到太小（可选）
+        // 防止窗口被缩得太小（可选）
         primaryStage.setMinWidth(820);
         primaryStage.setMinHeight(600);
 
